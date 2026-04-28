@@ -129,6 +129,14 @@
     /* ── Carousel ──────────────────────────────────── */
     .carousel-track { display:flex; transition: transform .5s cubic-bezier(.4,0,.2,1); }
 
+    /* ── Typing dots ──────────────────────────────── */
+    .t-dot {
+      display:inline-block; width:7px; height:7px; border-radius:50%;
+      background:rgba(26,200,204,.7);
+      animation: tdot .9s ease-in-out infinite;
+    }
+    @keyframes tdot { 0%,80%,100%{transform:scale(0);opacity:.3} 40%{transform:scale(1);opacity:1} }
+
     /* ── Noise texture overlay ─────────────────────── */
     .noise::after {
       content:''; position:absolute; inset:0; pointer-events:none;
@@ -687,10 +695,10 @@
 
           <!-- Quick replies -->
           <div id="quick-replies" class="px-5 pb-3 flex flex-wrap gap-2">
-            <button onclick="sendQuick(this,'¿Cuánto cuesta el traslado del aeropuerto a Sayulita?')" class="cursor-pointer quick-btn text-xs px-3 py-1.5 rounded-full border border-cyan/30 text-cyan/80 hover:bg-cyan/10 hover:text-cyan transition-all font-space">Traslado a Sayulita</button>
-            <button onclick="sendQuick(this,'What are the prices from TPG airport?')" class="cursor-pointer quick-btn text-xs px-3 py-1.5 rounded-full border border-cyan/30 text-cyan/80 hover:bg-cyan/10 hover:text-cyan transition-all font-space">Prices from TPG</button>
-            <button onclick="sendQuick(this,'¿Tienen servicio privado para grupos?')" class="cursor-pointer quick-btn text-xs px-3 py-1.5 rounded-full border border-cyan/30 text-cyan/80 hover:bg-cyan/10 hover:text-cyan transition-all font-space">Servicio privado</button>
-            <button onclick="sendQuick(this,'Quiero reservar para mañana')" class="cursor-pointer quick-btn text-xs px-3 py-1.5 rounded-full border border-cyan/30 text-cyan/80 hover:bg-cyan/10 hover:text-cyan transition-all font-space">Hacer reserva</button>
+            <button data-key="sayulita" class="cursor-pointer quick-btn text-xs px-3 py-1.5 rounded-full border border-cyan/30 text-cyan/80 hover:bg-cyan/10 hover:text-cyan transition-all font-space">Traslado a Sayulita</button>
+            <button data-key="tpg"      class="cursor-pointer quick-btn text-xs px-3 py-1.5 rounded-full border border-cyan/30 text-cyan/80 hover:bg-cyan/10 hover:text-cyan transition-all font-space">Prices from TPG</button>
+            <button data-key="privado"  class="cursor-pointer quick-btn text-xs px-3 py-1.5 rounded-full border border-cyan/30 text-cyan/80 hover:bg-cyan/10 hover:text-cyan transition-all font-space">Servicio privado</button>
+            <button data-key="reserva"  class="cursor-pointer quick-btn text-xs px-3 py-1.5 rounded-full border border-cyan/30 text-cyan/80 hover:bg-cyan/10 hover:text-cyan transition-all font-space">Hacer reserva</button>
           </div>
 
           <!-- Input -->
@@ -698,8 +706,8 @@
             <div class="flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5">
               <input id="chat-input" type="text" placeholder="Escribe tu pregunta..." maxlength="120"
                 class="flex-1 bg-transparent text-white/80 text-sm placeholder-white/25 outline-none font-dm"
-                onkeydown="if(event.key==='Enter')sendChatMsg()" style="cursor:text" />
-              <button onclick="sendChatMsg()" class="cursor-pointer w-8 h-8 rounded-lg bg-cyan flex items-center justify-center hover:bg-cyan-light transition-colors flex-shrink-0">
+                style="cursor:text" />
+              <button id="chat-send-btn" class="cursor-pointer w-8 h-8 rounded-lg bg-cyan flex items-center justify-center hover:bg-cyan-light transition-colors flex-shrink-0">
                 <svg class="w-4 h-4 text-navy" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
               </button>
             </div>
@@ -707,12 +715,11 @@
         </div>
 
         <!-- Notification demo -->
-        <div id="notif-demo" class="mt-4 rounded-xl border border-white/10 bg-[#0A1520] p-4 hidden">
-          <div class="flex items-center gap-2 mb-2">
+        <div id="notif-demo" class="mt-4 rounded-xl border border-white/10 bg-[#0A1520] p-4" style="display:none">
+          <div class="notif-header flex items-center gap-2 mb-3">
             <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-            <span class="text-green-400 text-xs font-space font-600 uppercase tracking-wide">Notificación enviada al equipo</span>
+            <span class="text-green-400 text-xs font-space font-600 uppercase tracking-wide">Notificaciones al equipo</span>
           </div>
-          <p id="notif-text" class="text-white/60 text-xs leading-relaxed"></p>
         </div>
       </div>
     </div>
@@ -1055,108 +1062,117 @@ const counterIO = new IntersectionObserver((entries) => {
 document.querySelectorAll('[data-target]').forEach(el => counterIO.observe(el));
 
 // ── AI Chat Demo ─────────────────────────────────────────────────────────
-const chatResponses = {
-  '¿Cuánto cuesta el traslado del aeropuerto a Sayulita?': {
-    reply: '¡Hola! El traslado desde el Aeropuerto Internacional de Puerto Vallarta (PVR) a Sayulita tiene un costo de <strong>$850 MXN</strong> por unidad. ¿Te gustaría hacer una reserva? 🚐',
-    notif: 'Cliente pregunta por precio TPG → Sayulita'
-  },
-  'What are the prices from TPG airport?': {
-    reply: 'Hi! Our rates from Puerto Vallarta International Airport (PVR) start at <strong>$850 MXN</strong> (~$42 USD) per vehicle to the Riviera Nayarit area. Private and group options available. Shall I assist with a booking?',
-    notif: 'English inquiry: airport pricing TPG'
-  },
-  '¿Tienen servicio privado para grupos?': {
-    reply: 'Sí, contamos con servicio privado para grupos de hasta <strong>14 personas</strong>. Disponemos de vans ejecutivas totalmente equipadas. ¿Cuántas personas son y cuál es su destino?',
-    notif: 'Consulta de grupo privado — requiere seguimiento'
-  },
-  'Quiero reservar para mañana': {
-    reply: '¡Perfecto! Para procesar tu reserva necesito: <br>• Punto de origen y destino<br>• Hora de llegada o salida<br>• Número de pasajeros<br><br>¿Me compartes esos datos? ✅',
-    notif: '⚡ Nueva reserva solicitada para mañana'
+(function initChat() {
+  var RESPONSES = [
+    { key: 'sayulita',  trigger: 'sayulita',  user: 'Traslado a Sayulita',      reply: '¡Hola! El traslado desde el Aeropuerto de Puerto Vallarta (PVR) a Sayulita tiene un costo de <strong>$850 MXN</strong> por unidad. ¿Te gustaría hacer una reserva?', notif: 'Cliente pregunta por precio TPG → Sayulita' },
+    { key: 'tpg',       trigger: 'tpg',       user: 'Prices from TPG airport?', reply: 'Hi! Our rates from PVR Airport start at <strong>$850 MXN</strong> (~$42 USD) per vehicle. Private and group options available. Want to book?', notif: 'English inquiry: airport pricing TPG' },
+    { key: 'privado',   trigger: 'privado',   user: '¿Servicio privado?',       reply: 'Sí, contamos con servicio privado para grupos de hasta <strong>14 personas</strong>. ¿Cuántas personas son y cuál es su destino?', notif: 'Consulta de grupo privado — requiere seguimiento' },
+    { key: 'reserva',   trigger: 'reserva',   user: 'Hacer reserva',            reply: '¡Perfecto! Necesito:<br>• Origen y destino<br>• Hora de llegada o salida<br>• Número de pasajeros<br><br>¿Me compartes esos datos?', notif: 'Nueva reserva solicitada' }
+  ];
+  var FALLBACK = [
+    'Un momento, déjame verificar disponibilidad para ti.',
+    'We are happy to help! Could you share more details about your trip?',
+    '¡Con gusto! ¿Me puedes dar más detalles para orientarte mejor?',
+    'Entendido, te conecto con la información que necesitas.'
+  ];
+  var msgCount = 0;
+
+  var msgs     = document.getElementById('chat-messages');
+  var input    = document.getElementById('chat-input');
+  var sendBtn  = document.querySelector('#chat-send-btn');
+  var qReply   = document.getElementById('quick-replies');
+  var notifBox = document.getElementById('notif-demo');
+
+  if (!msgs || !input || !notifBox) return; // guard if section removed
+
+  function addMsg(html, role) {
+    var wrap = document.createElement('div');
+    wrap.style.display = 'flex';
+    wrap.style.justifyContent = role === 'user' ? 'flex-end' : 'flex-start';
+    var bubble = document.createElement('div');
+    bubble.style.cssText = 'max-width:80%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.5;border:1px solid rgba(255,255,255,.1);';
+    if (role === 'user') {
+      bubble.style.background = 'rgba(26,200,204,.18)';
+      bubble.style.borderColor = 'rgba(26,200,204,.3)';
+      bubble.style.borderBottomRightRadius = '4px';
+      bubble.style.color = 'rgba(255,255,255,.9)';
+    } else {
+      bubble.style.background = 'rgba(19,36,56,.7)';
+      bubble.style.borderBottomLeftRadius = '4px';
+      bubble.style.color = 'rgba(255,255,255,.82)';
+    }
+    bubble.innerHTML = html;
+    wrap.appendChild(bubble);
+    msgs.appendChild(wrap);
+    msgs.scrollTop = msgs.scrollHeight;
   }
-};
 
-const defaultReplies = [
-  'Gracias por contactarnos. Un momento, te conecto con el mejor camino. 🗺️',
-  'Entendido, déjame verificar disponibilidad para ti.',
-  'We\'re happy to help! Could you provide more details about your trip?',
-  '¡Con gusto! ¿Me puedes dar más detalles para orientarte mejor?'
-];
+  function typing() {
+    var el = document.createElement('div');
+    el.id = 'typing-ind';
+    el.style.display = 'flex';
+    el.style.justifyContent = 'flex-start';
+    el.innerHTML = '<div style="background:rgba(19,36,56,.7);border:1px solid rgba(255,255,255,.1);border-radius:16px;border-bottom-left-radius:4px;padding:12px 16px;display:flex;gap:5px;align-items:center">' +
+      '<span class="t-dot"></span><span class="t-dot" style="animation-delay:.15s"></span><span class="t-dot" style="animation-delay:.3s"></span></div>';
+    msgs.appendChild(el);
+    msgs.scrollTop = msgs.scrollHeight;
+    return el;
+  }
 
-let chatMsgCount = 0;
-const notifPanel = document.getElementById('notif-demo');
+  function pushNotif(text) {
+    notifBox.style.display = 'block';
+    notifBox.classList.remove('hidden');
+    var item = document.createElement('div');
+    item.style.cssText = 'font-size:12px;color:rgba(255,255,255,.65);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;';
+    item.innerHTML = '<span style="color:#FF6B00;margin-top:1px">●</span><span>' + text + '</span>';
+    var header = notifBox.querySelector('.notif-header');
+    if (header) notifBox.insertBefore(item, header.nextSibling);
+    else notifBox.appendChild(item);
+    while (notifBox.querySelectorAll('div[style]').length > 4) {
+      var all = notifBox.querySelectorAll('div[style]');
+      notifBox.removeChild(all[all.length - 1]);
+    }
+  }
 
-function appendChatMsg(text, role) {
-  const msgs = document.getElementById('chat-messages');
-  const wrap = document.createElement('div');
-  wrap.className = role === 'user'
-    ? 'flex justify-end'
-    : 'flex justify-start';
-  const bubble = document.createElement('div');
-  bubble.className = role === 'user'
-    ? 'max-w-[80%] bg-cyan/20 border border-cyan/30 text-white/90 text-sm rounded-2xl rounded-tr-sm px-4 py-2.5 font-dm'
-    : 'max-w-[80%] bg-navy-light/60 border border-white/10 text-white/85 text-sm rounded-2xl rounded-tl-sm px-4 py-2.5 font-dm';
-  bubble.innerHTML = text;
-  wrap.appendChild(bubble);
-  msgs.appendChild(wrap);
-  msgs.scrollTop = msgs.scrollHeight;
-}
+  function reply(userText, botHtml, notifText) {
+    addMsg(userText, 'user');
+    var t = typing();
+    setTimeout(function() {
+      t.remove();
+      addMsg(botHtml, 'bot');
+      if (notifText) pushNotif(notifText);
+      msgCount++;
+    }, 1100 + Math.random() * 300);
+  }
 
-function showTyping() {
-  const msgs = document.getElementById('chat-messages');
-  const el = document.createElement('div');
-  el.id = 'typing-ind';
-  el.className = 'flex justify-start';
-  el.innerHTML = `<div class="bg-navy-light/60 border border-white/10 rounded-2xl rounded-tl-sm px-4 py-3 flex gap-1 items-center">
-    <span class="w-1.5 h-1.5 rounded-full bg-cyan/70 animate-bounce" style="animation-delay:0s"></span>
-    <span class="w-1.5 h-1.5 rounded-full bg-cyan/70 animate-bounce" style="animation-delay:.15s"></span>
-    <span class="w-1.5 h-1.5 rounded-full bg-cyan/70 animate-bounce" style="animation-delay:.3s"></span>
-  </div>`;
-  msgs.appendChild(el);
-  msgs.scrollTop = msgs.scrollHeight;
-  return el;
-}
+  // Quick-reply buttons via event delegation
+  if (qReply) {
+    qReply.addEventListener('click', function(e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      var key = btn.dataset.key;
+      var found = RESPONSES.find(function(r){ return r.key === key; });
+      // disable all quick btns
+      qReply.querySelectorAll('button').forEach(function(b){
+        b.disabled = true;
+        b.style.opacity = '.35';
+        b.style.pointerEvents = 'none';
+      });
+      if (found) reply(found.user, found.reply, found.notif);
+      else reply(btn.textContent.trim(), FALLBACK[msgCount % FALLBACK.length], 'Consulta recibida');
+    });
+  }
 
-function pushNotif(text) {
-  notifPanel.classList.remove('hidden');
-  const item = document.createElement('div');
-  item.className = 'text-xs text-white/70 bg-white/5 border border-white/10 rounded-lg px-3 py-2 font-dm flex gap-2 items-start';
-  item.innerHTML = `<span class="text-orange mt-0.5">●</span><span>${text}</span>`;
-  notifPanel.insertBefore(item, notifPanel.firstChild);
-  // cap at 4 items
-  while (notifPanel.children.length > 5) notifPanel.removeChild(notifPanel.lastChild);
-}
-
-function sendQuick(btn, text) {
-  // Disable all quick-reply buttons after first use
-  document.querySelectorAll('.quick-btn').forEach(b => {
-    b.disabled = true;
-    b.classList.add('opacity-40', 'pointer-events-none');
-  });
-  appendChatMsg(text, 'user');
-  const data = chatResponses[text];
-  const typing = showTyping();
-  setTimeout(() => {
-    typing.remove();
-    appendChatMsg(data ? data.reply : defaultReplies[chatMsgCount % defaultReplies.length], 'bot');
-    if (data && data.notif) pushNotif(data.notif);
-    chatMsgCount++;
-  }, 1200);
-}
-
-function sendChatMsg() {
-  const inp = document.getElementById('chat-input');
-  const text = inp.value.trim();
-  if (!text) return;
-  inp.value = '';
-  appendChatMsg(text, 'user');
-  const typing = showTyping();
-  setTimeout(() => {
-    typing.remove();
-    const reply = defaultReplies[chatMsgCount % defaultReplies.length];
-    appendChatMsg(reply, 'bot');
-    pushNotif('Mensaje libre recibido — equipo notificado');
-    chatMsgCount++;
-  }, 1100);
-}
+  // Send button + Enter key
+  function send() {
+    var text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    reply(text, FALLBACK[msgCount % FALLBACK.length], 'Mensaje libre — equipo notificado');
+  }
+  if (sendBtn) sendBtn.addEventListener('click', send);
+  input.addEventListener('keydown', function(e){ if (e.key === 'Enter') send(); });
+})();
 
 // ── Lightbox ────────────────────────────────────────────────────────────
 (function(){
