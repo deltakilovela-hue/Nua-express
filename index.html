@@ -138,9 +138,79 @@
 
     /* ── nav blur ──────────────────────────────────── */
     nav { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+
+    /* ── Lightbox ──────────────────────────────────── */
+    #lightbox {
+      position: fixed; inset: 0; z-index: 10000;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(7, 11, 18, 0);
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+      pointer-events: none;
+      transition: background .35s ease, backdrop-filter .35s ease;
+    }
+    #lightbox.open {
+      background: rgba(7, 11, 18, .88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      pointer-events: all;
+    }
+    #lightbox-img {
+      max-width: min(92vw, 1200px);
+      max-height: 88vh;
+      border-radius: 16px;
+      border: 1px solid rgba(26,200,204,.25);
+      box-shadow: 0 0 60px rgba(26,200,204,.15), 0 32px 80px rgba(0,0,0,.6);
+      transform: scale(.88);
+      opacity: 0;
+      transition: transform .38s cubic-bezier(.34,1.56,.64,1), opacity .3s ease;
+      cursor: none;
+      object-fit: contain;
+    }
+    #lightbox.open #lightbox-img {
+      transform: scale(1);
+      opacity: 1;
+    }
+    #lightbox-close {
+      position: absolute; top: 20px; right: 24px;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(26,200,204,.15); border: 1.5px solid rgba(26,200,204,.35);
+      display: flex; align-items: center; justify-content: center;
+      cursor: none; opacity: 0; transition: opacity .3s, background .2s;
+    }
+    #lightbox.open #lightbox-close { opacity: 1; }
+    #lightbox-close:hover { background: rgba(26,200,204,.3); }
+    #lightbox-caption {
+      position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+      font-family: 'Space Grotesk', sans-serif; font-size: .8rem;
+      color: rgba(255,255,255,.45); letter-spacing: .06em;
+      opacity: 0; transition: opacity .3s .15s;
+      white-space: nowrap;
+    }
+    #lightbox.open #lightbox-caption { opacity: 1; }
+
+    /* Zoomable images get a subtle hint */
+    img.zoomable {
+      cursor: none;
+      transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
+    }
+    img.zoomable:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 0 2px rgba(26,200,204,.4), 0 8px 32px rgba(0,0,0,.4);
+      filter: brightness(1.05);
+    }
   </style>
 </head>
 <body>
+
+<!-- ── Lightbox ───────────────────────────────────────────────────────── -->
+<div id="lightbox">
+  <button id="lightbox-close" aria-label="Cerrar">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1AC8CC" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+  </button>
+  <img id="lightbox-img" src="" alt="" />
+  <span id="lightbox-caption"></span>
+</div>
 
 <!-- ── Custom Cursor ──────────────────────────────────────────────────── -->
 <div id="cursor-dot"></div>
@@ -761,6 +831,43 @@ function carouselNext() { gotoSlide(cIdx + 1); }
 function carouselPrev() { gotoSlide(cIdx - 1); }
 // Auto-advance
 setInterval(() => carouselNext(), 4000);
+
+// ── Lightbox ────────────────────────────────────────────────────────────
+(function(){
+  const lb      = document.getElementById('lightbox');
+  const lbImg   = document.getElementById('lightbox-img');
+  const lbCap   = document.getElementById('lightbox-caption');
+  const lbClose = document.getElementById('lightbox-close');
+
+  function openLightbox(src, alt) {
+    lbImg.src = src;
+    lbCap.textContent = alt || '';
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    lb.classList.remove('open');
+    document.body.style.overflow = '';
+    // Clear src after transition so it doesn't flash
+    setTimeout(() => { if (!lb.classList.contains('open')) lbImg.src = ''; }, 380);
+  }
+
+  // Add zoomable to every content image (skip logos/nav)
+  document.querySelectorAll('img:not(#lightbox-img):not(nav img)').forEach(img => {
+    img.classList.add('zoomable');
+    img.addEventListener('click', () => openLightbox(img.src, img.alt));
+  });
+
+  // Close on backdrop click
+  lb.addEventListener('click', e => { if (e.target === lb || e.target === lbImg) closeLightbox(); });
+
+  // Close button
+  lbClose.addEventListener('click', closeLightbox);
+
+  // Close on Escape
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+})();
 
 // ── Navbar scroll shadow ─────────────────────────────────────────────────
 window.addEventListener('scroll', () => {
