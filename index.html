@@ -67,6 +67,9 @@
     section:not(#hero):not(#cta) .border-white\/15 { border-color: rgba(13,27,42,.15)  !important; }
     section:not(#hero):not(#cta) .border-white\/20 { border-color: rgba(13,27,42,.18)  !important; }
     section:not(#hero):not(#cta) .border-white\/25 { border-color: rgba(13,27,42,.2)   !important; }
+    /* ── Hero & CTA always dark ───────────────────── */
+    #hero { background: #0D1B2A !important; color: #E8F0F8; }
+    #cta  { background: #07111A !important; color: #E8F0F8; }
     /* Keep the chat widget always dark */
     #agente-ia .chat-widget * { color: inherit; }
 
@@ -309,7 +312,7 @@
 
     <!-- CTAs -->
     <div class="reveal flex flex-col sm:flex-row gap-4 justify-center mb-16">
-      <a href="#cta" class="cursor-none relative pulse-ring inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-cyan text-navy font-space font-700 text-base glow-btn transition-all hover:scale-105">
+      <a href="#propuesta" class="cursor-none relative pulse-ring inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-cyan text-navy font-space font-700 text-base glow-btn transition-all hover:scale-105">
         Ver propuesta completa
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
       </a>
@@ -903,6 +906,156 @@
         <p class="text-white/50 text-sm leading-relaxed">Activamos las herramientas, capacitamos a tu equipo y arrancamos en días, no meses.</p>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+  SECTION — PROPUESTA
+══════════════════════════════════════════════════════════════════════ -->
+<section id="propuesta" class="py-28 relative overflow-hidden">
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(23,195,178,.06),transparent_60%)] pointer-events-none"></div>
+  <div class="max-w-6xl mx-auto px-6">
+
+    <!-- Header -->
+    <div class="text-center mb-16">
+      <span class="reveal inline-block text-cyan text-sm font-space uppercase tracking-widest mb-3">Propuesta exclusiva</span>
+      <h2 class="reveal font-space font-700 text-3xl md:text-5xl text-white leading-tight mb-4">
+        Lo que Delta Kilo hace<br/><span class="grad-cyan">por Nua Exprés</span>
+      </h2>
+      <p class="reveal text-white/55 text-lg max-w-2xl mx-auto">Un plan completo en tres módulos, diseñado para que tu operación digital crezca al ritmo de tu expansión.</p>
+    </div>
+
+    <!-- Módulos -->
+    <div class="grid md:grid-cols-3 gap-6 mb-16">
+
+      <!-- Módulo 1 -->
+      <div class="reveal group rounded-3xl border border-cyan/20 bg-gradient-to-b from-cyan/8 to-transparent p-7 hover:border-cyan/40 transition-all duration-300 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 rounded-full bg-cyan/6 blur-3xl pointer-events-none"></div>
+        <div class="w-12 h-12 rounded-2xl bg-cyan/15 flex items-center justify-center mb-5">
+          <svg class="w-6 h-6 text-cyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <div class="text-cyan text-xs font-space uppercase tracking-widest mb-2">Módulo 01</div>
+        <h3 class="font-space font-700 text-white text-xl mb-4">Automatización de canales</h3>
+        <ul class="space-y-2.5 mb-6">
+          <li class="flex gap-2.5 text-sm text-white/70"><span class="text-cyan mt-0.5 flex-shrink-0">✓</span>Respuestas automáticas en WhatsApp, Instagram y Facebook</li>
+          <li class="flex gap-2.5 text-sm text-white/70"><span class="text-cyan mt-0.5 flex-shrink-0">✓</span>Cotización y reserva sin intervención humana</li>
+          <li class="flex gap-2.5 text-sm text-white/70"><span class="text-cyan mt-0.5 flex-shrink-0">✓</span>Seguimiento automático de cada prospecto</li>
+          <li class="flex gap-2.5 text-sm text-white/70"><span class="text-cyan mt-0.5 flex-shrink-0">✓</span>Notificaciones a tu equipo en tiempo real</li>
+          <li class="flex gap-2.5 text-sm text-white/70"><span class="text-cyan mt-0.5 flex-shrink-0">✓</span>Agente IA bilingüe (español / inglés)</li>
+        </ul>
+        <div class="pt-4 border-t border-white/10">
+          <div class="text-white/40 text-xs font-space uppercase tracking-wide mb-1">Tiempo de implementación</div>
+          <div class="text-cyan font-space font-600 text-sm">7–10 días hábiles</div>
+        </div>
+      </div>
+
+      <!-- Módulo 2 -->
+      <div class="reveal group rounded-3xl border border-orange/25 bg-gradient-to-b from-orange/6 to-transparent p-7 hover:border-orange/45 transition-all duration-300 relative overflow-hidden" style="transition-delay:.1s">
+        <div class="absolute top-0 right-0 w-32 h-32 rounded-full bg-orange/6 blur-3xl pointer-events-none"></div>
+        <!-- Destacado -->
+        <div class="absolute top-5 right-5">
+          <span class="inline-block bg-orange text-white text-xs font-space font-700 px-3 py-1 rounded-full">Recomendado</span>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-orange/15 flex items-center justify-center mb-5">
+          <svg class="w-6 h-6 text-orange" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </div>
+        <div class="text-orange text-xs font-space uppercase tracking-widest mb-2">Módulo 02</div>
+        <h3 class="font-space font-700 text-white text-xl mb-4">CRM + Gestión de contactos</h3>
+        <ul class="space-y-2.5 mb-6">
+          <li class="flex gap-2.5 text-sm text-white/70"><span class="text-orange mt-0.5 flex-shrink-0">✓</span>Bandeja unificada: WhatsApp, IG, FB, web en un panel</li>
+          <li class="flex gap-2.5 text-sm text-white/70"><span class="text-orange mt-0.5 flex-shrink-0">✓</span>Historial completo de cada cliente</li>
+          <li class="flex gap-2.5 text-sm text-white/70"><span class="text-orange mt-0.5 flex-shrink-0">✓</span>Etiquetas, etapas y asignación por ejecutivo</li>
+          <li class="flex gap-2.5 text-sm text-white/70"><span class="text-orange mt-0.5 flex-shrink-0">✓</span>Formularios conectados al CRM en tiempo real</li>
+          <li class="flex gap-2.5 text-sm text-white/70"><span class="text-orange mt-0.5 flex-shrink-0">✓</span>Reportes semanales de actividad</li>
+        </ul>
+        <div class="pt-4 border-t border-white/10">
+          <div class="text-white/40 text-xs font-space uppercase tracking-wide mb-1">Tiempo de implementación</div>
+          <div class="text-orange font-space font-600 text-sm">5–7 días hábiles</div>
+        </div>
+      </div>
+
+      <!-- Módulo 3 -->
+      <div class="reveal group rounded-3xl border border-cyan/20 bg-gradient-to-b from-cyan/8 to-transparent p-7 hover:border-cyan/40 transition-all duration-300 relative overflow-hidden" style="transition-delay:.2s">
+        <div class="absolute top-0 right-0 w-32 h-32 rounded-full bg-cyan/6 blur-3xl pointer-events-none"></div>
+        <div class="w-12 h-12 rounded-2xl bg-cyan/15 flex items-center justify-center mb-5">
+          <svg class="w-6 h-6 text-cyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        </div>
+        <div class="text-cyan text-xs font-space uppercase tracking-widest mb-2">Módulo 03</div>
+        <h3 class="font-space font-700 text-white text-xl mb-4">Contenido + Publicidad digital</h3>
+        <ul class="space-y-2.5 mb-6">
+          <li class="flex gap-2.5 text-sm text-white/70"><span class="text-cyan mt-0.5 flex-shrink-0">✓</span>30 publicaciones/mes diseñadas para Nua Exprés</li>
+          <li class="flex gap-2.5 text-sm text-white/70"><span class="text-cyan mt-0.5 flex-shrink-0">✓</span>Planificador de contenido con calendario editorial</li>
+          <li class="flex gap-2.5 text-sm text-white/70"><span class="text-cyan mt-0.5 flex-shrink-0">✓</span>Gestión de pautas en Meta y Google Ads</li>
+          <li class="flex gap-2.5 text-sm text-white/70"><span class="text-cyan mt-0.5 flex-shrink-0">✓</span>Blog SEO para posicionamiento en Google</li>
+          <li class="flex gap-2.5 text-sm text-white/70"><span class="text-cyan mt-0.5 flex-shrink-0">✓</span>Reporte mensual de resultados</li>
+        </ul>
+        <div class="pt-4 border-t border-white/10">
+          <div class="text-white/40 text-xs font-space uppercase tracking-wide mb-1">Tiempo de implementación</div>
+          <div class="text-cyan font-space font-600 text-sm">Inicio inmediato</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline de arranque -->
+    <div class="reveal rounded-3xl border border-white/10 bg-white/3 p-8 mb-10">
+      <h3 class="font-space font-700 text-white text-xl mb-8 text-center">¿Qué pasa después de decir "sí"?</h3>
+      <div class="grid sm:grid-cols-4 gap-6">
+        <div class="text-center">
+          <div class="w-12 h-12 rounded-2xl bg-cyan/15 border border-cyan/30 flex items-center justify-center mx-auto mb-3">
+            <span class="font-space font-700 text-cyan">1</span>
+          </div>
+          <div class="text-white font-space font-600 text-sm mb-1">Día 1–2</div>
+          <div class="text-white/50 text-xs">Reunión de diagnóstico y accesos al sistema</div>
+        </div>
+        <div class="text-center">
+          <div class="w-12 h-12 rounded-2xl bg-cyan/15 border border-cyan/30 flex items-center justify-center mx-auto mb-3">
+            <span class="font-space font-700 text-cyan">2</span>
+          </div>
+          <div class="text-white font-space font-600 text-sm mb-1">Día 3–7</div>
+          <div class="text-white/50 text-xs">Configuración de automatizaciones y CRM</div>
+        </div>
+        <div class="text-center">
+          <div class="w-12 h-12 rounded-2xl bg-orange/15 border border-orange/30 flex items-center justify-center mx-auto mb-3">
+            <span class="font-space font-700 text-orange">3</span>
+          </div>
+          <div class="text-white font-space font-600 text-sm mb-1">Día 8–14</div>
+          <div class="text-white/50 text-xs">Capacitación al equipo + primera campaña activa</div>
+        </div>
+        <div class="text-center">
+          <div class="w-12 h-12 rounded-2xl bg-orange/15 border border-orange/30 flex items-center justify-center mx-auto mb-3">
+            <span class="font-space font-700 text-orange">4</span>
+          </div>
+          <div class="text-white font-space font-600 text-sm mb-1">Día 30</div>
+          <div class="text-white/50 text-xs">Primer reporte de resultados y ajuste fino</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Garantía / diferenciador -->
+    <div class="reveal grid sm:grid-cols-3 gap-4">
+      <div class="rounded-2xl bg-cyan/6 border border-cyan/20 px-5 py-4 flex items-start gap-3">
+        <svg class="w-5 h-5 text-cyan flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        <div>
+          <div class="text-white font-space font-600 text-sm mb-0.5">Sin contratos largos</div>
+          <div class="text-white/50 text-xs">Trabajamos mes a mes. Si no ves resultados, no hay penalidad.</div>
+        </div>
+      </div>
+      <div class="rounded-2xl bg-cyan/6 border border-cyan/20 px-5 py-4 flex items-start gap-3">
+        <svg class="w-5 h-5 text-cyan flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div>
+          <div class="text-white font-space font-600 text-sm mb-0.5">Arranque en menos de 2 semanas</div>
+          <div class="text-white/50 text-xs">Tu sistema digital activo antes de que termine el mes.</div>
+        </div>
+      </div>
+      <div class="rounded-2xl bg-orange/6 border border-orange/20 px-5 py-4 flex items-start gap-3">
+        <svg class="w-5 h-5 text-orange flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        <div>
+          <div class="text-white font-space font-600 text-sm mb-0.5">Soporte directo con el equipo</div>
+          <div class="text-white/50 text-xs">Un contacto dedicado de Delta Kilo para Nua Exprés.</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
