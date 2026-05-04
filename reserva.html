@@ -136,7 +136,7 @@
         <span class="text-white text-xs font-600 uppercase tracking-wide">Servicio oficial aeroportuario</span>
       </div>
       <h1 class="font-syne font-800 text-white text-4xl md:text-5xl leading-tight mb-4">
-        Del aeropuerto a<br/>la Riviera Nayarit,<br/><span class="text-white/80">sin complicaciones.</span>
+        Del aeropuerto de Tepic a<br/>la Riviera Nayarit,<br/><span class="text-white/80">sin complicaciones.</span>
       </h1>
       <p class="text-white/80 text-lg mb-8 leading-relaxed">Selecciona tu destino, elige tu unidad y reserva en menos de 2 minutos. Confirmación inmediata.</p>
       <div class="flex flex-wrap gap-3">
@@ -245,7 +245,7 @@
           <div id="route-strip" class="mt-3 px-2 pb-1 flex items-center gap-3">
             <div class="flex items-center gap-2 text-sm">
               <span class="w-3 h-3 rounded-full bg-amber flex-shrink-0"></span>
-              <span class="font-500 text-onyx">Aeropuerto PVR</span>
+              <span class="font-500 text-onyx">Aeropuerto Tepic (TPY)</span>
             </div>
             <svg class="w-4 h-4 text-onyx/30 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4-4 4M3 12h18"/></svg>
             <div class="flex items-center gap-2 text-sm">
@@ -403,7 +403,7 @@
     <div class="text-center mb-10 sr">
       <span class="text-amber text-xs font-700 uppercase tracking-widest">Nuestra flota</span>
       <h2 class="font-syne font-800 text-2xl md:text-3xl text-onyx mt-1">Flota y precios</h2>
-      <p class="text-onyx/50 text-sm mt-2">Precios por unidad, no por persona. Desde Aeropuerto PVR.</p>
+      <p class="text-onyx/50 text-sm mt-2">Precios por unidad, no por persona. Desde Aeropuerto Tepic (TPY).</p>
     </div>
 
     <!-- Price table -->
@@ -471,13 +471,13 @@
     <span>Punta de Mita</span><span>·</span><span>Bucerías</span><span>·</span>
     <span>La Cruz</span><span>·</span><span>San Pancho</span><span>·</span>
     <span>Puerto Vallarta</span><span>·</span><span>Tepic</span><span>·</span>
-    <span>Nuevo Vallarta</span><span>·</span><span>Aeropuerto PVR</span><span>·</span>
+    <span>Nuevo Vallarta</span><span>·</span><span>Aeropuerto Tepic (TPY)</span><span>·</span>
     <!-- duplicate for seamless loop -->
     <span>Riviera Nayarit</span><span>·</span><span>Sayulita</span><span>·</span>
     <span>Punta de Mita</span><span>·</span><span>Bucerías</span><span>·</span>
     <span>La Cruz</span><span>·</span><span>San Pancho</span><span>·</span>
     <span>Puerto Vallarta</span><span>·</span><span>Tepic</span><span>·</span>
-    <span>Nuevo Vallarta</span><span>·</span><span>Aeropuerto PVR</span><span>·</span>
+    <span>Nuevo Vallarta</span><span>·</span><span>Aeropuerto Tepic (TPY)</span><span>·</span>
   </div>
 </div>
 
@@ -499,7 +499,7 @@
             <div class="text-white/60 text-[10px] font-700 uppercase tracking-widest leading-none">Conecta Nayarit</div>
           </div>
         </div>
-        <p class="text-white/60 text-sm max-w-xs">Tu transporte oficial del aeropuerto a la Riviera Nayarit. Servicio seguro, puntual y confiable.</p>
+        <p class="text-white/60 text-sm max-w-xs">Tu transporte oficial del aeropuerto de Tepic a la Riviera Nayarit. Servicio seguro, puntual y confiable.</p>
       </div>
       <div class="text-center">
         <p class="text-white/50 text-xs">Demo creado por</p>
@@ -527,62 +527,62 @@ const DESTINATIONS = {
   'nuevo-vallarta': {
     label: 'Nuevo Vallarta', emoji: '🏖️',
     coords: [20.7333, -105.2986],
-    dist: '~18 km', time: '~25 min',
+    dist: '~160 km', time: '~2h',
     desc: 'Zona hotelera frente al mar. Hoteles Grand Velas, Marival y más.',
-    prices: { sedan:600, suv:800, van:1100, shuttle:1500 }
+    prices: { sedan:1500, suv:1900, van:2700, shuttle:3500 }
   },
   'bucerias': {
     label: 'Bucerías', emoji: '⛵',
     coords: [20.7490, -105.3310],
-    dist: '~26 km', time: '~35 min',
+    dist: '~170 km', time: '~2h 10min',
     desc: 'Pintoresco pueblo con restaurantes y playas tranquilas.',
-    prices: { sedan:750, suv:980, van:1350, shuttle:1800 }
+    prices: { sedan:1600, suv:2050, van:2850, shuttle:3750 }
   },
   'la-cruz': {
     label: 'La Cruz de Huanacaxtle', emoji: '⚓',
     coords: [20.7333, -105.3667],
-    dist: '~34 km', time: '~45 min',
+    dist: '~180 km', time: '~2h 20min',
     desc: 'Marina y pueblo de pescadores. Mercado local y ambiente tranquilo.',
-    prices: { sedan:900, suv:1150, van:1600, shuttle:2100 }
+    prices: { sedan:1700, suv:2150, van:3000, shuttle:4000 }
   },
   'punta-mita': {
     label: 'Punta de Mita', emoji: '🌊',
     coords: [20.7700, -105.5333],
-    dist: '~60 km', time: '~65 min',
+    dist: '~200 km', time: '~2h 45min',
     desc: 'Resorts Four Seasons y St. Regis. Surf de clase mundial.',
-    prices: { sedan:1100, suv:1400, van:1950, shuttle:2600 }
+    prices: { sedan:1900, suv:2400, van:3400, shuttle:4500 }
   },
   'sayulita': {
     label: 'Sayulita', emoji: '🏄',
     coords: [20.8667, -105.4333],
-    dist: '~65 km', time: '~70 min',
+    dist: '~110 km', time: '~1h 25min',
     desc: 'Pueblo mágico surf, mercados artesanales y vida bohemia.',
     prices: { sedan:1200, suv:1550, van:2150, shuttle:2900 }
   },
   'san-pancho': {
     label: 'San Pancho', emoji: '🌺',
     coords: [20.9000, -105.4667],
-    dist: '~72 km', time: '~80 min',
+    dist: '~100 km', time: '~1h 15min',
     desc: 'San Francisco — tranquilo, cultural, playa virgen y cenotes.',
-    prices: { sedan:1400, suv:1800, van:2500, shuttle:3300 }
+    prices: { sedan:1100, suv:1400, van:1950, shuttle:2600 }
   },
   'puerto-vallarta': {
     label: 'Puerto Vallarta Centro', emoji: '🏙️',
     coords: [20.6296, -105.2236],
-    dist: '~8 km', time: '~15 min',
+    dist: '~175 km', time: '~2h 20min',
     desc: 'Malecón, zona romántica y turismo de clase mundial.',
-    prices: { sedan:650, suv:850, van:1200, shuttle:1600 }
+    prices: { sedan:1650, suv:2100, van:2950, shuttle:3900 }
   },
   'tepic': {
     label: 'Tepic', emoji: '🏔️',
     coords: [21.5061, -104.8952],
-    dist: '~165 km', time: '~2.5 hrs',
-    desc: 'Capital de Nayarit. Traslados ejecutivos y turismo interior.',
-    prices: { sedan:2200, suv:2800, van:3900, shuttle:5200 }
+    dist: '~12 km', time: '~15 min',
+    desc: 'Traslado al centro de Tepic, capital de Nayarit.',
+    prices: { sedan:250, suv:350, van:500, shuttle:700 }
   }
 };
 
-const AIRPORT = { label:'Aeropuerto PVR', coords:[20.6798, -105.2544] };
+const AIRPORT = { label:'Aeropuerto Tepic (TPY)', coords:[21.4194, -104.8428] };
 
 const VEHICLE_LABELS = { sedan:'Sedán', suv:'SUV', van:'Van Ejecutiva', shuttle:'Shuttle' };
 const VEHICLE_PAX    = { sedan:'1–4 pax', suv:'1–6 pax', van:'1–10 pax', shuttle:'1–14 pax' };
@@ -593,7 +593,7 @@ let selectedVehicle = 'sedan';
 
 // ── Map ───────────────────────────────────────────────────────────────
 const map = L.map('map', { zoomControl:true, scrollWheelZoom:false })
-  .setView([20.82, -105.35], 10);
+  .setView([21.0, -105.0], 9);
 
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   attribution:'&copy; OpenStreetMap &copy; CARTO', subdomains:'abcd', maxZoom:19
@@ -608,7 +608,7 @@ const airportIcon = L.divIcon({
   iconSize:[36,36], iconAnchor:[18,18]
 });
 L.marker(AIRPORT.coords, {icon:airportIcon}).addTo(map)
-  .bindPopup('<strong>Aeropuerto Internacional PVR</strong><br/><small>Puerto Vallarta</small>');
+  .bindPopup('<strong>Aeropuerto Internacional de Tepic</strong><br/><small>Puerto Vallarta</small>');
 
 // Destination markers
 const destMarkers = {};
@@ -739,7 +739,7 @@ document.getElementById('btn-reservar').addEventListener('click', () => {
 
   const msg = `¡Hola Nua Exprés! Quiero reservar un traslado 🚐
 
-📍 *Ruta:* Aeropuerto PVR → ${dest}
+📍 *Ruta:* Aeropuerto Tepic (TPY) → ${dest}
 🚗 *Unidad:* ${vehicle}
 👥 *Pasajeros:* ${pax}
 📅 *Fecha:* ${fecha}
