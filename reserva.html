@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reserva tu traslado — NuaExprés · Conecta Nayarit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <!-- Leaflet map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            amber:  { DEFAULT:'#C97B00', dark:'#A86500', light:'#E8930A', pale:'#FDF0D5' },
+            cream:  { DEFAULT:'#FBF7F0', dark:'#F0E8D8' },
+            onyx:   { DEFAULT:'#1A1200', mid:'#3D2E00' },
+          },
+          fontFamily: { inter:['Inter','sans-serif'], syne:['Syne','sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family:'Inter',sans-serif; background:#FBF7F0; color:#1A1200; }
+
+    /* ── Stripe logo mark ─── */
+    .logo-mark { display:inline-flex; gap:2px; transform:skewX(-14deg); }
+    .logo-mark span { display:block; width:4px; border-radius:2px; background:#C97B00; }
+
+    /* ── Nav ────────────────── */
+    nav { position:sticky; top:0; z-index:100; background:#fff; border-bottom:1px solid rgba(201,123,0,.15); }
+
+    /* ── Radio cards ─────────── */
+    .vehicle-card input[type=radio]   { position:absolute; opacity:0; pointer-events:none; }
+    .vehicle-card label { display:block; cursor:pointer; border:2px solid #E8D5B0; border-radius:16px;
+      padding:16px; transition:all .2s; background:#fff; }
+    .vehicle-card input:checked + label { border-color:#C97B00; background:#FDF0D5; }
+    .vehicle-card label:hover { border-color:#E8930A; }
+
+    /* ── Dest pill ─────────── */
+    .dest-pill { cursor:pointer; border:2px solid #E8D5B0; border-radius:999px;
+      padding:6px 14px; font-size:13px; font-weight:500; background:#fff; transition:all .2s;
+      white-space:nowrap; }
+    .dest-pill.active, .dest-pill:hover { background:#C97B00; color:#fff; border-color:#C97B00; }
+
+    /* ── Map ────────────────── */
+    #map { width:100%; height:420px; border-radius:20px; z-index:0; }
+    .leaflet-popup-content-wrapper { border-radius:12px !important; border:none !important;
+      box-shadow:0 8px 24px rgba(0,0,0,.15) !important; }
+    .leaflet-popup-tip { background:#C97B00 !important; }
+    .leaflet-popup-content-wrapper { background:#fff !important; }
+
+    /* ── Price badge ─────────── */
+    .price-badge { background:linear-gradient(135deg,#C97B00,#E8930A);
+      color:#fff; border-radius:12px; padding:4px 10px; font-size:12px; font-weight:700; }
+
+    /* ── Step indicator ─────── */
+    .step-dot { width:32px; height:32px; border-radius:50%; background:#FDF0D5;
+      border:2px solid #C97B00; display:flex; align-items:center; justify-content:center;
+      font-weight:700; color:#C97B00; font-size:13px; flex-shrink:0; }
+    .step-dot.done { background:#C97B00; color:#fff; }
+
+    /* ── Glow input ─────────── */
+    input:focus, select:focus, textarea:focus {
+      outline:none; border-color:#C97B00 !important;
+      box-shadow:0 0 0 3px rgba(201,123,0,.15);
+    }
+
+    /* ── Summary card ─────── */
+    #price-summary { transition:all .3s; }
+
+    /* ── Scroll reveal ─────── */
+    .sr { opacity:0; transform:translateY(20px); transition:opacity .6s ease, transform .6s ease; }
+    .sr.visible { opacity:1; transform:none; }
+
+    /* ── Marquee ─────────────── */
+    @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+    .marquee-inner { animation:marquee 22s linear infinite; display:flex; gap:2.5rem; white-space:nowrap; }
+  </style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ════════════════════════════════════════════════════════ -->
+<nav class="px-6 py-3">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <!-- Logo -->
+    <a href="index.html" class="flex items-center gap-2.5">
+      <div class="logo-mark">
+        <span style="height:22px"></span>
+        <span style="height:17px;margin-top:2px"></span>
+        <span style="height:12px;margin-top:4px"></span>
+        <span style="height:8px;margin-top:6px"></span>
+      </div>
+      <div>
+        <div class="font-syne font-800 text-onyx text-lg leading-none">NuaExprés</div>
+        <div class="text-amber text-[10px] font-700 uppercase tracking-widest leading-none">Conecta Nayarit</div>
+      </div>
+    </a>
+
+    <!-- Links -->
+    <div class="hidden md:flex items-center gap-8 text-sm font-500 text-onyx/70">
+      <a href="#como-funciona" class="hover:text-amber transition-colors">Cómo funciona</a>
+      <a href="#reservar" class="hover:text-amber transition-colors">Reservar</a>
+      <a href="#destinos" class="hover:text-amber transition-colors">Destinos</a>
+      <a href="#flota" class="hover:text-amber transition-colors">Flota y precios</a>
+    </div>
+
+    <!-- Lang + CTA -->
+    <div class="flex items-center gap-3">
+      <div class="hidden sm:flex items-center gap-1 text-xs font-600">
+        <button id="btn-es" class="px-2 py-1 rounded-md bg-amber text-white transition-all">ES</button>
+        <button id="btn-en" class="px-2 py-1 rounded-md text-onyx/50 hover:text-amber transition-all">EN</button>
+      </div>
+      <a href="#reservar" class="px-5 py-2.5 rounded-xl bg-amber text-white font-600 text-sm hover:bg-amber-dark transition-all shadow-sm">
+        Reservar
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ HERO ══════════════════════════════════════════════════════════ -->
+<header class="relative overflow-hidden bg-gradient-to-br from-amber via-amber-light to-[#E8A020] py-16 md:py-24">
+  <!-- Decorative circles -->
+  <div class="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-white/8 pointer-events-none"></div>
+  <div class="absolute bottom-0 left-0 w-56 h-56 rounded-full bg-black/6 pointer-events-none"></div>
+
+  <div class="max-w-7xl mx-auto px-6 relative">
+    <div class="max-w-xl">
+      <div class="inline-flex items-center gap-2 bg-white/20 backdrop-blur rounded-full px-4 py-1.5 mb-5">
+        <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+        <span class="text-white text-xs font-600 uppercase tracking-wide">Servicio oficial aeroportuario</span>
+      </div>
+      <h1 class="font-syne font-800 text-white text-4xl md:text-5xl leading-tight mb-4">
+        Del aeropuerto a<br/>la Riviera Nayarit,<br/><span class="text-white/80">sin complicaciones.</span>
+      </h1>
+      <p class="text-white/80 text-lg mb-8 leading-relaxed">Selecciona tu destino, elige tu unidad y reserva en menos de 2 minutos. Confirmación inmediata.</p>
+      <div class="flex flex-wrap gap-3">
+        <a href="#reservar" class="inline-flex items-center gap-2 px-7 py-3.5 bg-white text-amber font-700 rounded-2xl hover:bg-cream transition-all shadow-lg">
+          Reservar ahora
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4-4 4M3 12h18"/></svg>
+        </a>
+        <a href="#destinos" class="inline-flex items-center gap-2 px-7 py-3.5 bg-black/15 text-white font-600 rounded-2xl hover:bg-black/25 transition-all">
+          Ver destinos
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats strip -->
+  <div class="max-w-7xl mx-auto px-6 mt-12">
+    <div class="grid grid-cols-3 md:grid-cols-3 gap-4 max-w-lg">
+      <div class="bg-white/15 backdrop-blur rounded-2xl p-4 text-center">
+        <div class="font-syne font-800 text-white text-2xl">9</div>
+        <div class="text-white/70 text-xs mt-0.5">Destinos</div>
+      </div>
+      <div class="bg-white/15 backdrop-blur rounded-2xl p-4 text-center">
+        <div class="font-syne font-800 text-white text-2xl">24/7</div>
+        <div class="text-white/70 text-xs mt-0.5">Disponible</div>
+      </div>
+      <div class="bg-white/15 backdrop-blur rounded-2xl p-4 text-center">
+        <div class="font-syne font-800 text-white text-2xl">4</div>
+        <div class="text-white/70 text-xs mt-0.5">Tipos de unidad</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ COMO FUNCIONA ═════════════════════════════════════════════════ -->
+<section id="como-funciona" class="py-16 bg-white">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-10 sr">
+      <span class="text-amber text-xs font-700 uppercase tracking-widest">Simple y rápido</span>
+      <h2 class="font-syne font-800 text-2xl md:text-3xl text-onyx mt-1">¿Cómo funciona?</h2>
+    </div>
+    <div class="grid sm:grid-cols-4 gap-6 max-w-4xl mx-auto">
+      <div class="sr flex flex-col items-center text-center">
+        <div class="w-16 h-16 rounded-2xl bg-amber/10 flex items-center justify-center mb-3 border border-amber/20">
+          <svg class="w-7 h-7 text-amber" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </div>
+        <div class="step-dot done mb-3">1</div>
+        <h3 class="font-600 text-onyx text-sm mb-1">Elige tu destino</h3>
+        <p class="text-onyx/50 text-xs leading-relaxed">Selecciona desde el mapa o el listado de rutas disponibles.</p>
+      </div>
+      <div class="sr flex flex-col items-center text-center" style="transition-delay:.1s">
+        <div class="w-16 h-16 rounded-2xl bg-amber/10 flex items-center justify-center mb-3 border border-amber/20">
+          <svg class="w-7 h-7 text-amber" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+        </div>
+        <div class="step-dot done mb-3">2</div>
+        <h3 class="font-600 text-onyx text-sm mb-1">Selecciona tu unidad</h3>
+        <p class="text-onyx/50 text-xs leading-relaxed">Sedán, SUV, Van Ejecutiva o Shuttle según el grupo.</p>
+      </div>
+      <div class="sr flex flex-col items-center text-center" style="transition-delay:.2s">
+        <div class="w-16 h-16 rounded-2xl bg-amber/10 flex items-center justify-center mb-3 border border-amber/20">
+          <svg class="w-7 h-7 text-amber" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        </div>
+        <div class="step-dot mb-3">3</div>
+        <h3 class="font-600 text-onyx text-sm mb-1">Llena tus datos</h3>
+        <p class="text-onyx/50 text-xs leading-relaxed">Fecha, hora, número de vuelo y datos de contacto.</p>
+      </div>
+      <div class="sr flex flex-col items-center text-center" style="transition-delay:.3s">
+        <div class="w-16 h-16 rounded-2xl bg-amber/10 flex items-center justify-center mb-3 border border-amber/20">
+          <svg class="w-7 h-7 text-amber" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div class="step-dot mb-3">4</div>
+        <h3 class="font-600 text-onyx text-sm mb-1">Confirmación inmediata</h3>
+        <p class="text-onyx/50 text-xs leading-relaxed">Recibe confirmación por WhatsApp al instante.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MAPA + FORMULARIO ═════════════════════════════════════════════ -->
+<section id="reservar" class="py-16 bg-cream">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-10 sr">
+      <span class="text-amber text-xs font-700 uppercase tracking-widest">Reservación en línea</span>
+      <h2 class="font-syne font-800 text-2xl md:text-3xl text-onyx mt-1">Elige tu ruta y reserva ahora</h2>
+      <p class="text-onyx/50 text-sm mt-2">Selecciona un destino en el mapa o usa el formulario de abajo.</p>
+    </div>
+
+    <!-- Destination pills -->
+    <div id="dest-pills" class="flex flex-wrap gap-2 justify-center mb-8 sr">
+      <button class="dest-pill active" data-dest="nuevo-vallarta">Nuevo Vallarta</button>
+      <button class="dest-pill" data-dest="bucerias">Bucerías</button>
+      <button class="dest-pill" data-dest="la-cruz">La Cruz</button>
+      <button class="dest-pill" data-dest="punta-mita">Punta de Mita</button>
+      <button class="dest-pill" data-dest="sayulita">Sayulita</button>
+      <button class="dest-pill" data-dest="san-pancho">San Pancho</button>
+      <button class="dest-pill" data-dest="puerto-vallarta">Puerto Vallarta</button>
+      <button class="dest-pill" data-dest="tepic">Tepic</button>
+    </div>
+
+    <div class="grid lg:grid-cols-5 gap-6">
+
+      <!-- MAP (3 cols) -->
+      <div class="lg:col-span-3 sr">
+        <div class="bg-white rounded-3xl p-3 shadow-sm border border-amber/10">
+          <div id="map"></div>
+          <!-- Route info strip -->
+          <div id="route-strip" class="mt-3 px-2 pb-1 flex items-center gap-3">
+            <div class="flex items-center gap-2 text-sm">
+              <span class="w-3 h-3 rounded-full bg-amber flex-shrink-0"></span>
+              <span class="font-500 text-onyx">Aeropuerto PVR</span>
+            </div>
+            <svg class="w-4 h-4 text-onyx/30 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4-4 4M3 12h18"/></svg>
+            <div class="flex items-center gap-2 text-sm">
+              <span id="dest-dot" class="w-3 h-3 rounded-full bg-green-500 flex-shrink-0"></span>
+              <span id="dest-label" class="font-500 text-onyx">Nuevo Vallarta</span>
+            </div>
+            <div class="ml-auto flex items-center gap-2">
+              <span class="text-onyx/40 text-xs" id="route-dist">~18 km</span>
+              <span class="text-onyx/40 text-xs">·</span>
+              <span class="text-onyx/40 text-xs" id="route-time">~25 min</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORM (2 cols) -->
+      <div class="lg:col-span-2 sr" style="transition-delay:.15s">
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-amber/10 h-full flex flex-col gap-5">
+
+          <!-- Price summary -->
+          <div id="price-summary" class="rounded-2xl bg-amber/8 border border-amber/20 p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-600 text-onyx/60 uppercase tracking-wide">Precio estimado</span>
+              <span id="price-tag" class="text-2xl font-syne font-800 text-amber">$600 MXN</span>
+            </div>
+            <div class="text-xs text-onyx/50 flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 text-amber/70" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+              <span id="price-note">Sedán · Nuevo Vallarta · hasta 4 pax</span>
+            </div>
+          </div>
+
+          <!-- Destination hidden sync -->
+          <div>
+            <label class="block text-xs font-700 text-onyx/60 uppercase tracking-wide mb-2">Destino</label>
+            <select id="dest-select" class="w-full rounded-xl border border-amber/25 bg-cream px-4 py-3 text-sm font-500 text-onyx">
+              <option value="nuevo-vallarta">Nuevo Vallarta</option>
+              <option value="bucerias">Bucerías</option>
+              <option value="la-cruz">La Cruz de Huanacaxtle</option>
+              <option value="punta-mita">Punta de Mita</option>
+              <option value="sayulita">Sayulita</option>
+              <option value="san-pancho">San Pancho</option>
+              <option value="puerto-vallarta">Puerto Vallarta Centro</option>
+              <option value="tepic">Tepic</option>
+            </select>
+          </div>
+
+          <!-- Vehicle select -->
+          <div>
+            <label class="block text-xs font-700 text-onyx/60 uppercase tracking-wide mb-2">Tipo de unidad</label>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="vehicle-card relative">
+                <input type="radio" name="vehicle" id="v-sedan" value="sedan" checked/>
+                <label for="v-sedan" class="text-center">
+                  <div class="text-xl mb-1">🚗</div>
+                  <div class="font-700 text-xs text-onyx">Sedán</div>
+                  <div class="text-onyx/50 text-[10px]">1–4 pax</div>
+                </label>
+              </div>
+              <div class="vehicle-card relative">
+                <input type="radio" name="vehicle" id="v-suv" value="suv"/>
+                <label for="v-suv" class="text-center">
+                  <div class="text-xl mb-1">🚙</div>
+                  <div class="font-700 text-xs text-onyx">SUV</div>
+                  <div class="text-onyx/50 text-[10px]">1–6 pax</div>
+                </label>
+              </div>
+              <div class="vehicle-card relative">
+                <input type="radio" name="vehicle" id="v-van" value="van"/>
+                <label for="v-van" class="text-center">
+                  <div class="text-xl mb-1">🚐</div>
+                  <div class="font-700 text-xs text-onyx">Van Ejecutiva</div>
+                  <div class="text-onyx/50 text-[10px]">1–10 pax</div>
+                </label>
+              </div>
+              <div class="vehicle-card relative">
+                <input type="radio" name="vehicle" id="v-shuttle" value="shuttle"/>
+                <label for="v-shuttle" class="text-center">
+                  <div class="text-xl mb-1">🚌</div>
+                  <div class="font-700 text-xs text-onyx">Shuttle</div>
+                  <div class="text-onyx/50 text-[10px]">1–14 pax</div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Passengers + date -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-700 text-onyx/60 uppercase tracking-wide mb-2">Pasajeros</label>
+              <input id="pax" type="number" min="1" max="14" value="2"
+                class="w-full rounded-xl border border-amber/25 bg-cream px-4 py-3 text-sm font-500"/>
+            </div>
+            <div>
+              <label class="block text-xs font-700 text-onyx/60 uppercase tracking-wide mb-2">Fecha</label>
+              <input id="fecha" type="date"
+                class="w-full rounded-xl border border-amber/25 bg-cream px-4 py-3 text-sm font-500"/>
+            </div>
+          </div>
+
+          <!-- Time + flight -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-700 text-onyx/60 uppercase tracking-wide mb-2">Hora llegada</label>
+              <input id="hora" type="time"
+                class="w-full rounded-xl border border-amber/25 bg-cream px-4 py-3 text-sm font-500"/>
+            </div>
+            <div>
+              <label class="block text-xs font-700 text-onyx/60 uppercase tracking-wide mb-2">No. vuelo</label>
+              <input id="vuelo" type="text" placeholder="AM 456"
+                class="w-full rounded-xl border border-amber/25 bg-cream px-4 py-3 text-sm font-500 placeholder-onyx/30"/>
+            </div>
+          </div>
+
+          <!-- Name + phone -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-700 text-onyx/60 uppercase tracking-wide mb-2">Nombre</label>
+              <input id="nombre" type="text" placeholder="Tu nombre"
+                class="w-full rounded-xl border border-amber/25 bg-cream px-4 py-3 text-sm font-500 placeholder-onyx/30"/>
+            </div>
+            <div>
+              <label class="block text-xs font-700 text-onyx/60 uppercase tracking-wide mb-2">WhatsApp</label>
+              <input id="tel" type="tel" placeholder="+52 33…"
+                class="w-full rounded-xl border border-amber/25 bg-cream px-4 py-3 text-sm font-500 placeholder-onyx/30"/>
+            </div>
+          </div>
+
+          <!-- CTA -->
+          <button id="btn-reservar"
+            class="w-full py-4 bg-amber hover:bg-amber-dark text-white font-700 rounded-2xl transition-all text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Solicitar por WhatsApp
+          </button>
+          <p class="text-center text-onyx/40 text-xs -mt-2">Confirmación inmediata · Pago en destino</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DESTINOS ══════════════════════════════════════════════════════ -->
+<section id="destinos" class="py-16 bg-white">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-10 sr">
+      <span class="text-amber text-xs font-700 uppercase tracking-widest">Todas las rutas</span>
+      <h2 class="font-syne font-800 text-2xl md:text-3xl text-onyx mt-1">Destinos disponibles</h2>
+    </div>
+    <div id="dest-cards" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+  </div>
+</section>
+
+<!-- ══ FLOTA Y PRECIOS ═══════════════════════════════════════════════ -->
+<section id="flota" class="py-16 bg-cream">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-10 sr">
+      <span class="text-amber text-xs font-700 uppercase tracking-widest">Nuestra flota</span>
+      <h2 class="font-syne font-800 text-2xl md:text-3xl text-onyx mt-1">Flota y precios</h2>
+      <p class="text-onyx/50 text-sm mt-2">Precios por unidad, no por persona. Desde Aeropuerto PVR.</p>
+    </div>
+
+    <!-- Price table -->
+    <div class="sr overflow-x-auto rounded-3xl border border-amber/15 shadow-sm bg-white">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-amber/8 border-b border-amber/15">
+            <th class="text-left px-5 py-4 font-700 text-onyx/70 text-xs uppercase tracking-wide">Destino</th>
+            <th class="px-4 py-4 font-700 text-onyx/70 text-xs text-center">🚗 Sedán<br/><span class="font-400 normal-case text-[10px]">1–4 pax</span></th>
+            <th class="px-4 py-4 font-700 text-onyx/70 text-xs text-center">🚙 SUV<br/><span class="font-400 normal-case text-[10px]">1–6 pax</span></th>
+            <th class="px-4 py-4 font-700 text-onyx/70 text-xs text-center">🚐 Van<br/><span class="font-400 normal-case text-[10px]">1–10 pax</span></th>
+            <th class="px-4 py-4 font-700 text-onyx/70 text-xs text-center">🚌 Shuttle<br/><span class="font-400 normal-case text-[10px]">1–14 pax</span></th>
+          </tr>
+        </thead>
+        <tbody id="price-table-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Vehicle detail cards -->
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-8">
+      <div class="sr bg-white rounded-3xl p-5 border border-amber/15 shadow-sm hover:border-amber/40 hover:shadow-md transition-all">
+        <div class="text-4xl mb-3">🚗</div>
+        <h3 class="font-syne font-800 text-onyx text-lg mb-1">Sedán</h3>
+        <p class="text-onyx/50 text-xs mb-3">Perfecto para viajes individuales o en pareja. A/C, Wi-Fi, agua.</p>
+        <div class="flex items-center justify-between">
+          <span class="text-onyx/40 text-xs">Hasta 4 pasajeros</span>
+          <span class="price-badge">Desde $600</span>
+        </div>
+      </div>
+      <div class="sr bg-white rounded-3xl p-5 border border-amber/15 shadow-sm hover:border-amber/40 hover:shadow-md transition-all" style="transition-delay:.1s">
+        <div class="text-4xl mb-3">🚙</div>
+        <h3 class="font-syne font-800 text-onyx text-lg mb-1">SUV</h3>
+        <p class="text-onyx/50 text-xs mb-3">Ideal para familias. Amplio espacio para equipaje y comodidad extra.</p>
+        <div class="flex items-center justify-between">
+          <span class="text-onyx/40 text-xs">Hasta 6 pasajeros</span>
+          <span class="price-badge">Desde $800</span>
+        </div>
+      </div>
+      <div class="sr bg-white rounded-3xl p-5 border border-amber/15 shadow-sm hover:border-amber/40 hover:shadow-md transition-all" style="transition-delay:.2s">
+        <div class="text-4xl mb-3">🚐</div>
+        <h3 class="font-syne font-800 text-onyx text-lg mb-1">Van Ejecutiva</h3>
+        <p class="text-onyx/50 text-xs mb-3">Para grupos medianos o viajes corporativos con comodidad premium.</p>
+        <div class="flex items-center justify-between">
+          <span class="text-onyx/40 text-xs">Hasta 10 pasajeros</span>
+          <span class="price-badge">Desde $1,100</span>
+        </div>
+      </div>
+      <div class="sr bg-white rounded-3xl p-5 border border-amber/15 shadow-sm hover:border-amber/40 hover:shadow-md transition-all" style="transition-delay:.3s">
+        <div class="text-4xl mb-3">🚌</div>
+        <h3 class="font-syne font-800 text-onyx text-lg mb-1">Shuttle Grupal</h3>
+        <p class="text-onyx/50 text-xs mb-3">La opción más económica por persona para grupos grandes.</p>
+        <div class="flex items-center justify-between">
+          <span class="text-onyx/40 text-xs">Hasta 14 pasajeros</span>
+          <span class="price-badge">Desde $1,500</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MARQUEE ═══════════════════════════════════════════════════════ -->
+<div class="overflow-hidden py-6 bg-amber border-y-0">
+  <div class="marquee-inner text-white/70 text-sm font-600 uppercase tracking-widest">
+    <span>Riviera Nayarit</span><span>·</span><span>Sayulita</span><span>·</span>
+    <span>Punta de Mita</span><span>·</span><span>Bucerías</span><span>·</span>
+    <span>La Cruz</span><span>·</span><span>San Pancho</span><span>·</span>
+    <span>Puerto Vallarta</span><span>·</span><span>Tepic</span><span>·</span>
+    <span>Nuevo Vallarta</span><span>·</span><span>Aeropuerto PVR</span><span>·</span>
+    <!-- duplicate for seamless loop -->
+    <span>Riviera Nayarit</span><span>·</span><span>Sayulita</span><span>·</span>
+    <span>Punta de Mita</span><span>·</span><span>Bucerías</span><span>·</span>
+    <span>La Cruz</span><span>·</span><span>San Pancho</span><span>·</span>
+    <span>Puerto Vallarta</span><span>·</span><span>Tepic</span><span>·</span>
+    <span>Nuevo Vallarta</span><span>·</span><span>Aeropuerto PVR</span><span>·</span>
+  </div>
+</div>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════════════ -->
+<footer class="bg-gradient-to-br from-amber to-amber-dark py-16 relative overflow-hidden">
+  <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image:radial-gradient(circle at 80% 50%, #fff 0%, transparent 60%)"></div>
+  <div class="max-w-7xl mx-auto px-6 relative">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+      <div>
+        <div class="flex items-center gap-2.5 mb-2">
+          <div class="logo-mark" style="transform:skewX(-14deg)">
+            <span style="height:22px;background:#fff"></span>
+            <span style="height:17px;margin-top:2px;background:#fff"></span>
+            <span style="height:12px;margin-top:4px;background:#fff"></span>
+            <span style="height:8px;margin-top:6px;background:#fff"></span>
+          </div>
+          <div>
+            <div class="font-syne font-800 text-white text-lg leading-none">NuaExprés</div>
+            <div class="text-white/60 text-[10px] font-700 uppercase tracking-widest leading-none">Conecta Nayarit</div>
+          </div>
+        </div>
+        <p class="text-white/60 text-sm max-w-xs">Tu transporte oficial del aeropuerto a la Riviera Nayarit. Servicio seguro, puntual y confiable.</p>
+      </div>
+      <div class="text-center">
+        <p class="text-white/50 text-xs">Demo creado por</p>
+        <a href="index.html" class="font-syne font-800 text-white/90 text-sm hover:text-white transition-colors">Delta Kilo Soluciones</a>
+        <p class="text-white/40 text-xs mt-1">deltakilo.vela@gmail.com</p>
+      </div>
+      <div class="flex flex-col gap-3">
+        <a href="https://wa.me/521XXXXXXXXXX" target="_blank"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-white text-amber font-700 rounded-2xl hover:bg-cream transition-all text-sm shadow-md">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Reservar por WhatsApp
+        </a>
+      </div>
+    </div>
+    <div class="mt-8 pt-6 border-t border-white/15 text-center text-white/30 text-xs">
+      © 2026 NuaExprés · Todos los derechos reservados
+    </div>
+  </div>
+</footer>
+
+<!-- ══ SCRIPTS ═══════════════════════════════════════════════════════ -->
+<script>
+// ── Data ─────────────────────────────────────────────────────────────
+const DESTINATIONS = {
+  'nuevo-vallarta': {
+    label: 'Nuevo Vallarta', emoji: '🏖️',
+    coords: [20.7333, -105.2986],
+    dist: '~18 km', time: '~25 min',
+    desc: 'Zona hotelera frente al mar. Hoteles Grand Velas, Marival y más.',
+    prices: { sedan:600, suv:800, van:1100, shuttle:1500 }
+  },
+  'bucerias': {
+    label: 'Bucerías', emoji: '⛵',
+    coords: [20.7490, -105.3310],
+    dist: '~26 km', time: '~35 min',
+    desc: 'Pintoresco pueblo con restaurantes y playas tranquilas.',
+    prices: { sedan:750, suv:980, van:1350, shuttle:1800 }
+  },
+  'la-cruz': {
+    label: 'La Cruz de Huanacaxtle', emoji: '⚓',
+    coords: [20.7333, -105.3667],
+    dist: '~34 km', time: '~45 min',
+    desc: 'Marina y pueblo de pescadores. Mercado local y ambiente tranquilo.',
+    prices: { sedan:900, suv:1150, van:1600, shuttle:2100 }
+  },
+  'punta-mita': {
+    label: 'Punta de Mita', emoji: '🌊',
+    coords: [20.7700, -105.5333],
+    dist: '~60 km', time: '~65 min',
+    desc: 'Resorts Four Seasons y St. Regis. Surf de clase mundial.',
+    prices: { sedan:1100, suv:1400, van:1950, shuttle:2600 }
+  },
+  'sayulita': {
+    label: 'Sayulita', emoji: '🏄',
+    coords: [20.8667, -105.4333],
+    dist: '~65 km', time: '~70 min',
+    desc: 'Pueblo mágico surf, mercados artesanales y vida bohemia.',
+    prices: { sedan:1200, suv:1550, van:2150, shuttle:2900 }
+  },
+  'san-pancho': {
+    label: 'San Pancho', emoji: '🌺',
+    coords: [20.9000, -105.4667],
+    dist: '~72 km', time: '~80 min',
+    desc: 'San Francisco — tranquilo, cultural, playa virgen y cenotes.',
+    prices: { sedan:1400, suv:1800, van:2500, shuttle:3300 }
+  },
+  'puerto-vallarta': {
+    label: 'Puerto Vallarta Centro', emoji: '🏙️',
+    coords: [20.6296, -105.2236],
+    dist: '~8 km', time: '~15 min',
+    desc: 'Malecón, zona romántica y turismo de clase mundial.',
+    prices: { sedan:650, suv:850, van:1200, shuttle:1600 }
+  },
+  'tepic': {
+    label: 'Tepic', emoji: '🏔️',
+    coords: [21.5061, -104.8952],
+    dist: '~165 km', time: '~2.5 hrs',
+    desc: 'Capital de Nayarit. Traslados ejecutivos y turismo interior.',
+    prices: { sedan:2200, suv:2800, van:3900, shuttle:5200 }
+  }
+};
+
+const AIRPORT = { label:'Aeropuerto PVR', coords:[20.6798, -105.2544] };
+
+const VEHICLE_LABELS = { sedan:'Sedán', suv:'SUV', van:'Van Ejecutiva', shuttle:'Shuttle' };
+const VEHICLE_PAX    = { sedan:'1–4 pax', suv:'1–6 pax', van:'1–10 pax', shuttle:'1–14 pax' };
+
+// ── State ─────────────────────────────────────────────────────────────
+let selectedDest   = 'nuevo-vallarta';
+let selectedVehicle = 'sedan';
+
+// ── Map ───────────────────────────────────────────────────────────────
+const map = L.map('map', { zoomControl:true, scrollWheelZoom:false })
+  .setView([20.82, -105.35], 10);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution:'&copy; OpenStreetMap &copy; CARTO', subdomains:'abcd', maxZoom:19
+}).addTo(map);
+
+// Airport marker
+const airportIcon = L.divIcon({
+  className:'',
+  html:`<div style="background:#C97B00;color:#fff;width:36px;height:36px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:16px;
+    box-shadow:0 4px 12px rgba(201,123,0,.5);border:3px solid #fff">✈️</div>`,
+  iconSize:[36,36], iconAnchor:[18,18]
+});
+L.marker(AIRPORT.coords, {icon:airportIcon}).addTo(map)
+  .bindPopup('<strong>Aeropuerto Internacional PVR</strong><br/><small>Puerto Vallarta</small>');
+
+// Destination markers
+const destMarkers = {};
+Object.entries(DESTINATIONS).forEach(([key, d]) => {
+  const icon = L.divIcon({
+    className:'',
+    html:`<div id="mk-${key}" style="background:#fff;color:#C97B00;width:34px;height:34px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;font-size:15px;
+      box-shadow:0 3px 10px rgba(0,0,0,.18);border:2px solid #E8D5B0;cursor:pointer;
+      transition:all .2s">${d.emoji}</div>`,
+    iconSize:[34,34], iconAnchor:[17,17], popupAnchor:[0,-20]
+  });
+  const m = L.marker(d.coords, {icon}).addTo(map);
+  m.bindPopup(`
+    <div style="min-width:160px;font-family:Inter,sans-serif">
+      <div style="font-weight:700;font-size:13px;color:#1A1200;margin-bottom:2px">${d.emoji} ${d.label}</div>
+      <div style="font-size:11px;color:#888;margin-bottom:6px">${d.desc}</div>
+      <div style="background:#FDF0D5;border-radius:8px;padding:4px 8px;font-size:12px;font-weight:700;color:#C97B00">
+        Desde $${d.prices.sedan.toLocaleString()} MXN
+      </div>
+    </div>`);
+  m.on('click', () => selectDest(key));
+  destMarkers[key] = m;
+});
+
+// Route polyline
+let routeLine = null;
+function drawRoute(destKey) {
+  if (routeLine) map.removeLayer(routeLine);
+  const d = DESTINATIONS[destKey];
+  routeLine = L.polyline([AIRPORT.coords, d.coords], {
+    color:'#C97B00', weight:3, opacity:.7, dashArray:'8 6'
+  }).addTo(map);
+  map.fitBounds(routeLine.getBounds(), {padding:[40,40]});
+}
+
+// ── Select destination ────────────────────────────────────────────────
+function selectDest(key) {
+  selectedDest = key;
+  const d = DESTINATIONS[key];
+
+  // Update pills
+  document.querySelectorAll('.dest-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.dest === key);
+  });
+  // Update select
+  document.getElementById('dest-select').value = key;
+  // Update route info
+  document.getElementById('dest-label').textContent = d.label;
+  document.getElementById('route-dist').textContent  = d.dist;
+  document.getElementById('route-time').textContent  = d.time;
+  // Draw route
+  drawRoute(key);
+  // Update price
+  updatePrice();
+  // Highlight marker
+  Object.keys(destMarkers).forEach(k => {
+    const el = document.getElementById('mk-' + k);
+    if (el) el.style.border = k === key ? '3px solid #C97B00' : '2px solid #E8D5B0';
+  });
+}
+
+// ── Select vehicle ────────────────────────────────────────────────────
+function updatePrice() {
+  const d = DESTINATIONS[selectedDest];
+  const v = document.querySelector('input[name="vehicle"]:checked')?.value || 'sedan';
+  selectedVehicle = v;
+  const price = d.prices[v];
+  document.getElementById('price-tag').textContent  = '$' + price.toLocaleString() + ' MXN';
+  document.getElementById('price-note').textContent =
+    VEHICLE_LABELS[v] + ' · ' + d.label + ' · ' + VEHICLE_PAX[v];
+}
+
+// ── Build destination cards ───────────────────────────────────────────
+function buildDestCards() {
+  const container = document.getElementById('dest-cards');
+  Object.entries(DESTINATIONS).forEach(([key, d], i) => {
+    const card = document.createElement('div');
+    card.className = 'sr bg-white rounded-3xl p-5 border border-amber/15 cursor-pointer hover:border-amber/50 hover:shadow-md transition-all';
+    card.style.transitionDelay = (i * 0.06) + 's';
+    card.innerHTML = `
+      <div class="text-3xl mb-3">${d.emoji}</div>
+      <h3 class="font-syne font-800 text-onyx text-base mb-1">${d.label}</h3>
+      <p class="text-onyx/50 text-xs mb-4 leading-relaxed">${d.desc}</p>
+      <div class="flex items-center justify-between">
+        <span class="text-onyx/40 text-xs">${d.dist} · ${d.time}</span>
+        <span class="price-badge">Desde $${d.prices.sedan.toLocaleString()}</span>
+      </div>`;
+    card.addEventListener('click', () => {
+      selectDest(key);
+      document.getElementById('reservar').scrollIntoView({behavior:'smooth'});
+    });
+    container.appendChild(card);
+  });
+}
+
+// ── Build price table ─────────────────────────────────────────────────
+function buildPriceTable() {
+  const tbody = document.getElementById('price-table-body');
+  Object.entries(DESTINATIONS).forEach(([key, d], i) => {
+    const tr = document.createElement('tr');
+    tr.className = (i % 2 === 0 ? 'bg-white' : 'bg-cream/50') + ' border-b border-amber/8 hover:bg-amber/5 transition-colors cursor-pointer';
+    tr.innerHTML = `
+      <td class="px-5 py-3 font-600 text-onyx text-sm">${d.emoji} ${d.label}</td>
+      <td class="px-4 py-3 text-center font-700 text-amber text-sm">$${d.prices.sedan.toLocaleString()}</td>
+      <td class="px-4 py-3 text-center font-700 text-amber text-sm">$${d.prices.suv.toLocaleString()}</td>
+      <td class="px-4 py-3 text-center font-700 text-amber text-sm">$${d.prices.van.toLocaleString()}</td>
+      <td class="px-4 py-3 text-center font-700 text-amber text-sm">$${d.prices.shuttle.toLocaleString()}</td>`;
+    tr.addEventListener('click', () => {
+      selectDest(key);
+      document.getElementById('reservar').scrollIntoView({behavior:'smooth'});
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+// ── WhatsApp CTA ──────────────────────────────────────────────────────
+document.getElementById('btn-reservar').addEventListener('click', () => {
+  const dest    = DESTINATIONS[selectedDest].label;
+  const vehicle = VEHICLE_LABELS[selectedVehicle];
+  const price   = DESTINATIONS[selectedDest].prices[selectedVehicle];
+  const nombre  = document.getElementById('nombre').value || '—';
+  const tel_val = document.getElementById('tel').value || '—';
+  const fecha   = document.getElementById('fecha').value || '—';
+  const hora    = document.getElementById('hora').value || '—';
+  const vuelo   = document.getElementById('vuelo').value || '—';
+  const pax     = document.getElementById('pax').value || '—';
+
+  const msg = `¡Hola Nua Exprés! Quiero reservar un traslado 🚐
+
+📍 *Ruta:* Aeropuerto PVR → ${dest}
+🚗 *Unidad:* ${vehicle}
+👥 *Pasajeros:* ${pax}
+📅 *Fecha:* ${fecha}
+⏰ *Hora llegada:* ${hora}
+✈️ *No. vuelo:* ${vuelo}
+💰 *Precio estimado:* $${price.toLocaleString()} MXN
+
+*Datos de contacto:*
+👤 ${nombre}
+📱 ${tel_val}`;
+
+  window.open('https://wa.me/521XXXXXXXXXX?text=' + encodeURIComponent(msg), '_blank');
+});
+
+// ── Pill & select sync ────────────────────────────────────────────────
+document.querySelectorAll('.dest-pill').forEach(p => {
+  p.addEventListener('click', () => selectDest(p.dataset.dest));
+});
+document.getElementById('dest-select').addEventListener('change', e => selectDest(e.target.value));
+document.querySelectorAll('input[name="vehicle"]').forEach(r => {
+  r.addEventListener('change', updatePrice);
+});
+
+// ── Scroll reveal ─────────────────────────────────────────────────────
+const srIO = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); srIO.unobserve(e.target); } });
+}, { threshold:.12 });
+document.querySelectorAll('.sr').forEach(el => srIO.observe(el));
+
+// ── Set today as default date ─────────────────────────────────────────
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('fecha').value = today;
+
+// ── Init ──────────────────────────────────────────────────────────────
+buildDestCards();
+buildPriceTable();
+selectDest('nuevo-vallarta');
+
+// ── Lang toggle (demo) ────────────────────────────────────────────────
+document.getElementById('btn-es').addEventListener('click', () => {
+  document.getElementById('btn-es').classList.add('bg-amber','text-white');
+  document.getElementById('btn-en').classList.remove('bg-amber','text-white');
+});
+document.getElementById('btn-en').addEventListener('click', () => {
+  document.getElementById('btn-en').classList.add('bg-amber','text-white');
+  document.getElementById('btn-es').classList.remove('bg-amber','text-white');
+});
+</script>
+</body>
+</html>
