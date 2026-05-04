@@ -236,15 +236,31 @@
     }
     #lightbox.open #lightbox-caption { opacity: 1; }
 
-    /* Zoomable images get a subtle hint */
-    img.zoomable {
-      cursor: none;
-      transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
+    /* Zoomable wrapper + badge */
+    .img-zoom-wrap {
+      position: relative; display: block; line-height: 0; overflow: hidden;
     }
-    img.zoomable:hover {
-      transform: scale(1.02);
-      box-shadow: 0 0 0 2px rgba(201,123,0,.4), 0 8px 32px rgba(0,0,0,.4);
+    .img-zoom-wrap img {
+      transition: transform .3s ease, filter .3s ease;
+      width: 100%; display: block;
+    }
+    .img-zoom-wrap:hover img {
+      transform: scale(1.03);
       filter: brightness(1.05);
+    }
+    .zoom-badge {
+      position: absolute; top: 10px; right: 10px;
+      background: rgba(201,123,0,.9); border-radius: 8px; padding: 7px;
+      opacity: 0; transition: opacity .2s ease;
+      pointer-events: none; z-index: 3;
+      box-shadow: 0 2px 8px rgba(0,0,0,.3);
+    }
+    .img-zoom-wrap:hover .zoom-badge { opacity: 1; }
+    /* Cursor ring hint on image hover */
+    body:has(.img-zoom-wrap:hover) #cursor-ring {
+      width: 58px; height: 58px;
+      border-color: #C97B00;
+      background: rgba(201,123,0,.1);
     }
   </style>
 </head>
@@ -1134,62 +1150,62 @@
         </div>
       </div>
 
-      <!-- Right: mockup preview card -->
+      <!-- Right: mockup preview card — uses inline styles to avoid light-section CSS overrides -->
       <div class="reveal-right relative">
         <!-- Browser chrome mockup -->
-        <div class="rounded-2xl overflow-hidden border border-white/10 shadow-2xl" style="box-shadow:0 0 60px rgba(201,123,0,.12);">
+        <div class="rounded-2xl overflow-hidden shadow-2xl" style="border:1px solid rgba(255,255,255,.1);box-shadow:0 0 60px rgba(201,123,0,.12);">
           <!-- Fake browser bar -->
-          <div class="bg-[#1A0800] border-b border-white/8 px-4 py-3 flex items-center gap-3">
-            <div class="flex gap-1.5">
-              <span class="w-3 h-3 rounded-full bg-red-500/60"></span>
-              <span class="w-3 h-3 rounded-full bg-yellow-500/60"></span>
-              <span class="w-3 h-3 rounded-full bg-green-500/60"></span>
+          <div style="background:#1A0800;border-bottom:1px solid rgba(255,255,255,.08);padding:12px 16px;display:flex;align-items:center;gap:12px;">
+            <div style="display:flex;gap:6px;">
+              <span style="width:12px;height:12px;border-radius:50%;background:rgba(239,68,68,.6);display:inline-block;"></span>
+              <span style="width:12px;height:12px;border-radius:50%;background:rgba(234,179,8,.6);display:inline-block;"></span>
+              <span style="width:12px;height:12px;border-radius:50%;background:rgba(34,197,94,.6);display:inline-block;"></span>
             </div>
-            <div class="flex-1 bg-white/6 rounded-md px-3 py-1 text-white/30 text-xs font-dm text-center">
+            <div style="flex:1;background:rgba(255,255,255,.06);border-radius:6px;padding:4px 12px;font-size:12px;color:rgba(255,255,255,.3);text-align:center;font-family:'DM Sans',sans-serif;">
               nuaexpress.mx/reserva
             </div>
           </div>
-          <!-- Preview content (visual teaser) -->
-          <div class="bg-[#1A0800] p-6 space-y-4">
+          <!-- Preview content (visual teaser) — all colors via inline style -->
+          <div style="background:#1A0800;padding:24px;display:flex;flex-direction:column;gap:14px;">
             <!-- Hero teaser -->
-            <div class="rounded-xl bg-gradient-to-r from-[#C97B00]/20 to-[#FF6B00]/10 border border-cyan/15 p-4">
-              <div class="text-cyan font-space font-700 text-lg mb-1">Del Aeropuerto de Tepic</div>
-              <div class="text-white/50 text-sm">a toda la Riviera Nayarit 🌴</div>
+            <div style="border-radius:12px;background:linear-gradient(to right,rgba(201,123,0,.2),rgba(255,107,0,.1));border:1px solid rgba(201,123,0,.2);padding:16px;">
+              <div style="color:#C97B00;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;margin-bottom:4px;">Del Aeropuerto de Tepic</div>
+              <div style="color:rgba(255,255,255,.5);font-size:13px;">a toda la Riviera Nayarit 🌴</div>
             </div>
-            <!-- Fake destination pills -->
-            <div class="grid grid-cols-2 gap-2">
-              <div class="bg-white/5 border border-white/8 rounded-xl p-3 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-cyan flex-shrink-0"></span>
-                <span class="text-white/70 text-xs font-dm">Sayulita · $1,200</span>
+            <!-- Destination pills -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:#C97B00;flex-shrink:0;"></span>
+                <span style="color:rgba(255,255,255,.7);font-size:12px;font-family:'DM Sans',sans-serif;">Sayulita · $1,200</span>
               </div>
-              <div class="bg-white/5 border border-white/8 rounded-xl p-3 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-cyan flex-shrink-0"></span>
-                <span class="text-white/70 text-xs font-dm">Punta de Mita · $1,900</span>
+              <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:#C97B00;flex-shrink:0;"></span>
+                <span style="color:rgba(255,255,255,.7);font-size:12px;font-family:'DM Sans',sans-serif;">Punta de Mita · $1,900</span>
               </div>
-              <div class="bg-white/5 border border-white/8 rounded-xl p-3 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-cyan flex-shrink-0"></span>
-                <span class="text-white/70 text-xs font-dm">Nuevo Vallarta · $1,500</span>
+              <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:#C97B00;flex-shrink:0;"></span>
+                <span style="color:rgba(255,255,255,.7);font-size:12px;font-family:'DM Sans',sans-serif;">Nuevo Vallarta · $1,500</span>
               </div>
-              <div class="bg-white/5 border border-white/8 rounded-xl p-3 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-cyan flex-shrink-0"></span>
-                <span class="text-white/70 text-xs font-dm">Puerto Vallarta · $1,650</span>
+              <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:8px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:#C97B00;flex-shrink:0;"></span>
+                <span style="color:rgba(255,255,255,.7);font-size:12px;font-family:'DM Sans',sans-serif;">Puerto Vallarta · $1,650</span>
               </div>
             </div>
-            <!-- Fake price calculator row -->
-            <div class="bg-white/4 border border-white/8 rounded-xl p-4 flex items-center justify-between">
+            <!-- Price row -->
+            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px;display:flex;align-items:center;justify-content:space-between;">
               <div>
-                <div class="text-white/40 text-xs font-dm mb-0.5">Van privada · 8 pax</div>
-                <div class="text-cyan font-space font-700 text-xl">$2,500 MXN</div>
+                <div style="color:rgba(255,255,255,.4);font-size:11px;font-family:'DM Sans',sans-serif;margin-bottom:3px;">Van privada · 8 pax</div>
+                <div style="color:#C97B00;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;">$2,500 MXN</div>
               </div>
-              <div class="bg-[#C97B00] rounded-xl px-4 py-2.5 text-navy font-space font-700 text-sm flex items-center gap-1.5">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              <div style="background:#C97B00;border-radius:12px;padding:10px 16px;color:#0D1B2A;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px;">
+                <svg style="width:16px;height:16px;" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                 Reservar
               </div>
             </div>
             <!-- Map placeholder -->
-            <div class="rounded-xl bg-[#0D1B2A]/60 border border-white/6 h-24 flex items-center justify-center gap-2">
-              <svg class="w-5 h-5 text-cyan/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-              <span class="text-white/25 text-sm font-dm">Mapa interactivo · Riviera Nayarit</span>
+            <div style="border-radius:12px;background:rgba(13,27,42,.6);border:1px solid rgba(255,255,255,.06);height:80px;display:flex;align-items:center;justify-content:center;gap:8px;">
+              <svg style="width:18px;height:18px;color:rgba(201,123,0,.5);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+              <span style="color:rgba(255,255,255,.25);font-size:13px;font-family:'DM Sans',sans-serif;">Mapa interactivo · Riviera Nayarit</span>
             </div>
           </div>
         </div>
@@ -1593,10 +1609,30 @@ document.querySelectorAll('[data-target]').forEach(el => counterIO.observe(el));
     setTimeout(() => { if (!lb.classList.contains('open')) lbImg.src = ''; }, 380);
   }
 
-  // Add zoomable to every content image (skip logos/nav)
-  document.querySelectorAll('img:not(#lightbox-img):not(nav img)').forEach(img => {
-    img.classList.add('zoomable');
-    img.addEventListener('click', () => openLightbox(img.src, img.alt));
+  // Wrap every content image with zoom overlay (skip lightbox + nav + tiny icons)
+  document.querySelectorAll('img:not(#lightbox-img):not(nav img):not(.no-zoom)').forEach(img => {
+    // Skip very small images (logos, avatars ≤ 60px rendered)
+    if (img.width > 0 && img.width <= 60) return;
+
+    // Create wrapper
+    const wrap = document.createElement('div');
+    wrap.className = 'img-zoom-wrap';
+    // Preserve parent display context
+    const computedDisplay = getComputedStyle(img.parentElement).display;
+    if (computedDisplay === 'flex' || computedDisplay === 'grid') {
+      wrap.style.flex = img.style.flex || '1 1 auto';
+    }
+    img.parentNode.insertBefore(wrap, img);
+    wrap.appendChild(img);
+
+    // Zoom icon badge
+    const badge = document.createElement('div');
+    badge.className = 'zoom-badge';
+    badge.innerHTML = '<svg width="16" height="16" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 8v6M8 11h6"/></svg>';
+    wrap.appendChild(badge);
+
+    // Click opens lightbox
+    wrap.addEventListener('click', () => openLightbox(img.src, img.alt));
   });
 
   // Close on backdrop click
