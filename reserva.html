@@ -282,6 +282,26 @@
             </div>
           </div>
 
+          <!-- Trip type toggle -->
+          <div>
+            <label class="block text-xs font-700 text-onyx/60 uppercase tracking-wide mb-2" data-i18n="trip-label">Tipo de viaje</label>
+            <div class="flex gap-1.5 p-1 bg-amber/8 rounded-xl border border-amber/20">
+              <button id="trip-one" type="button"
+                class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-700 bg-amber text-white shadow-sm transition-all">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4-4 4M3 12h18"/></svg>
+                <span data-i18n="trip-one">Sólo ida</span>
+              </button>
+              <button id="trip-round" type="button"
+                class="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-700 text-onyx/50 hover:text-onyx/80 transition-all">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16l-4-4 4-4M17 8l4 4-4 4M3 12h18"/></svg>
+                <span data-i18n="trip-round">Ida y vuelta</span>
+              </button>
+            </div>
+            <p id="round-trip-note" class="hidden text-xs text-amber mt-1.5 font-500" data-i18n="round-note">
+              ✓ Precio × 2 — incluye regreso al aeropuerto
+            </p>
+          </div>
+
           <!-- Destination hidden sync -->
           <div>
             <label class="block text-xs font-700 text-onyx/60 uppercase tracking-wide mb-2" data-i18n="form-dest">Destino</label>
@@ -639,15 +659,62 @@ Object.entries(DESTINATIONS).forEach(([key, d]) => {
   destMarkers[key] = m;
 });
 
-// Route polyline
+// ── Road-following route via OSRM ────────────────────────────────────
 let routeLine = null;
-function drawRoute(destKey) {
-  if (routeLine) map.removeLayer(routeLine);
+async function drawRoute(destKey) {
+  if (routeLine) { map.removeLayer(routeLine); routeLine = null; }
   const d = DESTINATIONS[destKey];
-  routeLine = L.polyline([AIRPORT.coords, d.coords], {
-    color:'#C97B00', weight:3, opacity:.7, dashArray:'8 6'
-  }).addTo(map);
-  map.fitBounds(routeLine.getBounds(), {padding:[40,40]});
+  const [lat1, lng1] = AIRPORT.coords;
+  const [lat2, lng2] = d.coords;
+
+  // Show static data while fetching
+  document.getElementById('route-dist').textContent = d.dist;
+  document.getElementById('route-time').textContent = d.time;
+
+  try {
+    const url = `https://router.project-osrm.org/route/v1/driving/${lng1},${lat1};${lng2},${lat2}?overview=full&geometries=geojson`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('network');
+    const data = await resp.json();
+    if (!data.routes?.[0]) throw new Error('no route');
+
+    // Convert GeoJSON [lng,lat] → Leaflet [lat,lng]
+    const coords = data.routes[0].geometry.coordinates.map(([lo, la]) => [la, lo]);
+    const distKm  = Math.round(data.routes[0].distance / 1000);
+    const durMin  = Math.round(data.routes[0].duration / 60);
+    const durH    = Math.floor(durMin / 60);
+    const durM    = durMin % 60;
+    const timeStr = durH > 0 ? `~${durH}h${durM > 0 ? ` ${durM}min` : ''}` : `~${durMin}min`;
+
+    routeLine = L.polyline(coords, {
+      color: '#C97B00', weight: 4.5, opacity: .9,
+      lineJoin: 'round', lineCap: 'round'
+    }).addTo(map);
+
+    // Animate the line drawing
+    routeLine.setStyle({ dashArray: '1 10000', dashOffset: '0' });
+    let len = 0;
+    const total = 10000;
+    const step = () => {
+      len = Math.min(len + 400, total);
+      routeLine.setStyle({ dashArray: `${len} ${total - len}` });
+      if (len < total) requestAnimationFrame(step);
+      else routeLine.setStyle({ dashArray: null }); // solid line when done
+    };
+    requestAnimationFrame(step);
+
+    // Update with real OSRM data
+    document.getElementById('route-dist').textContent = `~${distKm} km`;
+    document.getElementById('route-time').textContent = timeStr;
+
+  } catch (_) {
+    // Fallback: straight dashed line
+    routeLine = L.polyline([AIRPORT.coords, d.coords], {
+      color: '#C97B00', weight: 3, opacity: .7, dashArray: '8 6'
+    }).addTo(map);
+  }
+
+  if (routeLine) map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
 }
 
 // ── Select destination ────────────────────────────────────────────────
@@ -661,11 +728,8 @@ function selectDest(key) {
   });
   // Update select
   document.getElementById('dest-select').value = key;
-  // Update route info
+  // Update route label & draw road-following route
   document.getElementById('dest-label').textContent = d.label;
-  document.getElementById('route-dist').textContent  = d.dist;
-  document.getElementById('route-time').textContent  = d.time;
-  // Draw route
   drawRoute(key);
   // Update price
   updatePrice();
@@ -676,15 +740,49 @@ function selectDest(key) {
   });
 }
 
-// ── Select vehicle ────────────────────────────────────────────────────
+// ── Trip type toggle ──────────────────────────────────────────────────
+let isRoundTrip = false;
+
+function setTripType(roundTrip) {
+  isRoundTrip = roundTrip;
+  const btnOne   = document.getElementById('trip-one');
+  const btnRound = document.getElementById('trip-round');
+  const note     = document.getElementById('round-trip-note');
+
+  if (roundTrip) {
+    btnRound.classList.add('bg-amber','text-white','shadow-sm');
+    btnRound.classList.remove('text-onyx/50','hover:text-onyx/80');
+    btnOne.classList.remove('bg-amber','text-white','shadow-sm');
+    btnOne.classList.add('text-onyx/50','hover:text-onyx/80');
+    note.classList.remove('hidden');
+  } else {
+    btnOne.classList.add('bg-amber','text-white','shadow-sm');
+    btnOne.classList.remove('text-onyx/50','hover:text-onyx/80');
+    btnRound.classList.remove('bg-amber','text-white','shadow-sm');
+    btnRound.classList.add('text-onyx/50','hover:text-onyx/80');
+    note.classList.add('hidden');
+  }
+  updatePrice();
+}
+
+document.getElementById('trip-one').addEventListener('click',   () => setTripType(false));
+document.getElementById('trip-round').addEventListener('click', () => setTripType(true));
+
+// ── Price calculator ──────────────────────────────────────────────────
 function updatePrice() {
   const d = DESTINATIONS[selectedDest];
   const v = document.querySelector('input[name="vehicle"]:checked')?.value || 'sedan';
   selectedVehicle = v;
-  const price = d.prices[v];
-  document.getElementById('price-tag').textContent  = '$' + price.toLocaleString() + ' MXN';
+  const base  = d.prices[v];
+  const total = isRoundTrip ? base * 2 : base;
+  const lang  = typeof currentLang !== 'undefined' ? currentLang : 'es';
+  const pLabel = lang === 'en' ? 'price-label' : 'price-label';
+  document.getElementById('price-tag').textContent = '$' + total.toLocaleString() + ' MXN';
+  const tripSuffix = isRoundTrip
+    ? (lang === 'en' ? ' · Round trip' : ' · Ida y vuelta')
+    : '';
   document.getElementById('price-note').textContent =
-    VEHICLE_LABELS[v] + ' · ' + d.label + ' · ' + VEHICLE_PAX[v];
+    VEHICLE_LABELS[v] + ' · ' + d.label + ' · ' + VEHICLE_PAX[v] + tripSuffix;
 }
 
 // ── Build destination cards ───────────────────────────────────────────
@@ -751,15 +849,18 @@ document.getElementById('btn-reservar').addEventListener('click', () => {
   const vuelo   = document.getElementById('vuelo').value || '—';
   const pax     = document.getElementById('pax').value || '—';
 
+  const tripType = isRoundTrip ? 'Ida y vuelta 🔄' : 'Sólo ida →';
+  const total    = isRoundTrip ? price * 2 : price;
   const msg = `¡Hola Nua Exprés! Quiero reservar un traslado 🚐
 
 📍 *Ruta:* Aeropuerto Tepic (TPQ/MMEP) → ${dest}
+🔁 *Tipo:* ${tripType}${isRoundTrip ? `\n↩️ *Regreso:* ${dest} → Aeropuerto Tepic (TPQ/MMEP)` : ''}
 🚗 *Unidad:* ${vehicle}
 👥 *Pasajeros:* ${pax}
 📅 *Fecha:* ${fecha}
 ⏰ *Hora llegada:* ${hora}
 ✈️ *No. vuelo:* ${vuelo}
-💰 *Precio estimado:* $${price.toLocaleString()} MXN
+💰 *Precio estimado:* $${total.toLocaleString()} MXN${isRoundTrip ? ' (ida + vuelta)' : ''}
 
 *Datos de contacto:*
 👤 ${nombre}
@@ -825,7 +926,9 @@ const T = {
     'nav-cta': 'Reservar', 'placeholder-q': 'Escribe tu pregunta...', 'placeholder-name': 'Tu nombre',
     'placeholder-flight': 'AM 456', 'placeholder-phone': '+52 33…',
     'price-label': 'Precio estimado', 'price-unit-note': 'por unidad · hasta',
-    'pax-label': 'pax'
+    'pax-label': 'pax',
+    'trip-label': 'Tipo de viaje', 'trip-one': 'Sólo ida', 'trip-round': 'Ida y vuelta',
+    'round-note': '✓ Precio × 2 — incluye regreso al aeropuerto'
   },
   en: {
     'nav-como': 'How it works', 'nav-reservar': 'Book',
@@ -858,7 +961,9 @@ const T = {
     'nav-cta': 'Book', 'placeholder-q': 'Type your question...', 'placeholder-name': 'Your name',
     'placeholder-flight': 'AM 456', 'placeholder-phone': '+52 33…',
     'price-label': 'Estimated price', 'price-unit-note': 'per vehicle · up to',
-    'pax-label': 'pax'
+    'pax-label': 'pax',
+    'trip-label': 'Trip type', 'trip-one': 'One way', 'trip-round': 'Round trip',
+    'round-note': '✓ Price × 2 — includes return to airport'
   }
 };
 
