@@ -124,47 +124,52 @@
 </nav>
 
 <!-- ══ HERO ══════════════════════════════════════════════════════════ -->
-<header class="relative overflow-hidden bg-gradient-to-br from-amber via-amber-light to-[#E8A020] py-16 md:py-24">
-  <!-- Decorative circles -->
-  <div class="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-white/8 pointer-events-none"></div>
-  <div class="absolute bottom-0 left-0 w-56 h-56 rounded-full bg-black/6 pointer-events-none"></div>
+<header class="relative overflow-hidden" style="min-height:520px;background:#1A0800;">
+  <!-- Background hero image -->
+  <img id="hero-bg" src="HERO.png" alt="Nua Exprés — Del Aeropuerto a la Riviera Nayarit"
+    class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none" style="z-index:0;" />
+  <!-- Gradient overlay: dark on left for text, transparent on right to show image -->
+  <div class="absolute inset-0 pointer-events-none" style="z-index:1;background:linear-gradient(100deg,rgba(15,8,0,.82) 0%,rgba(15,8,0,.55) 45%,rgba(15,8,0,.15) 70%,transparent 100%);"></div>
+  <!-- Subtle bottom gradient for stats strip -->
+  <div class="absolute bottom-0 left-0 right-0 pointer-events-none" style="z-index:1;height:180px;background:linear-gradient(to top,rgba(15,8,0,.6),transparent);"></div>
 
-  <div class="max-w-7xl mx-auto px-6 relative">
+  <!-- Content -->
+  <div class="max-w-7xl mx-auto px-6 relative py-20 md:py-28" style="z-index:2;">
     <div class="max-w-xl">
-      <div class="inline-flex items-center gap-2 bg-white/20 backdrop-blur rounded-full px-4 py-1.5 mb-5">
-        <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+      <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-6">
+        <span class="w-2 h-2 rounded-full bg-amber animate-pulse"></span>
         <span class="text-white text-xs font-600 uppercase tracking-wide" data-i18n="hero-badge">Servicio oficial aeroportuario</span>
       </div>
-      <h1 class="font-syne font-800 text-white text-4xl md:text-5xl leading-tight mb-4" data-i18n="hero-h1">
-        Del aeropuerto de Tepic a<br/>la Riviera Nayarit,<br/><span class="text-white/80">sin complicaciones.</span>
+      <h1 class="font-syne font-800 text-white leading-tight mb-5" style="font-size:clamp(2rem,5vw,3.25rem);" data-i18n="hero-h1">
+        Del aeropuerto de Tepic a<br/>la Riviera Nayarit,<br/><span style="color:rgba(255,255,255,.7);">sin complicaciones.</span>
       </h1>
-      <p class="text-white/80 text-lg mb-8 leading-relaxed" data-i18n="hero-sub">Selecciona tu destino, elige tu unidad y reserva en menos de 2 minutos. Confirmación inmediata.</p>
+      <p class="text-white/75 text-lg mb-8 leading-relaxed" data-i18n="hero-sub">Selecciona tu destino, elige tu unidad y reserva en menos de 2 minutos. Confirmación inmediata.</p>
       <div class="flex flex-wrap gap-3">
-        <a href="#reservar" class="inline-flex items-center gap-2 px-7 py-3.5 bg-white text-amber font-700 rounded-2xl hover:bg-cream transition-all shadow-lg">
-          Reservar ahora
+        <a href="#reservar" class="inline-flex items-center gap-2 px-7 py-3.5 bg-amber text-white font-700 rounded-2xl hover:bg-amber-dark transition-all shadow-xl">
+          <span data-i18n="hero-cta1">Reservar ahora</span>
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4-4 4M3 12h18"/></svg>
         </a>
-        <a href="#destinos" class="inline-flex items-center gap-2 px-7 py-3.5 bg-black/15 text-white font-600 rounded-2xl hover:bg-black/25 transition-all">
-          Ver destinos
+        <a href="#destinos" class="inline-flex items-center gap-2 px-7 py-3.5 bg-white/10 backdrop-blur-sm border border-white/25 text-white font-600 rounded-2xl hover:bg-white/20 transition-all">
+          <span data-i18n="hero-cta2">Ver destinos</span>
         </a>
       </div>
     </div>
   </div>
 
   <!-- Stats strip -->
-  <div class="max-w-7xl mx-auto px-6 mt-12">
-    <div class="grid grid-cols-3 md:grid-cols-3 gap-4 max-w-lg">
-      <div class="bg-white/15 backdrop-blur rounded-2xl p-4 text-center">
+  <div class="max-w-7xl mx-auto px-6 pb-10 relative" style="z-index:2;">
+    <div class="grid grid-cols-3 gap-4 max-w-lg">
+      <div class="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-4 text-center">
         <div class="font-syne font-800 text-white text-2xl">9</div>
-        <div class="text-white/70 text-xs mt-0.5">Destinos</div>
+        <div class="text-white/65 text-xs mt-0.5" data-i18n="stats-1">Destinos</div>
       </div>
-      <div class="bg-white/15 backdrop-blur rounded-2xl p-4 text-center">
+      <div class="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-4 text-center">
         <div class="font-syne font-800 text-white text-2xl">24/7</div>
-        <div class="text-white/70 text-xs mt-0.5">Disponible</div>
+        <div class="text-white/65 text-xs mt-0.5" data-i18n="stats-2">Disponible</div>
       </div>
-      <div class="bg-white/15 backdrop-blur rounded-2xl p-4 text-center">
+      <div class="bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl p-4 text-center">
         <div class="font-syne font-800 text-white text-2xl">4</div>
-        <div class="text-white/70 text-xs mt-0.5">Tipos de unidad</div>
+        <div class="text-white/65 text-xs mt-0.5" data-i18n="stats-3">Tipos de unidad</div>
       </div>
     </div>
   </div>
@@ -183,32 +188,32 @@
           <svg class="w-7 h-7 text-amber" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         </div>
         <div class="step-dot done mb-3">1</div>
-        <h3 class="font-600 text-onyx text-sm mb-1">Elige tu destino</h3>
-        <p class="text-onyx/50 text-xs leading-relaxed">Selecciona desde el mapa o el listado de rutas disponibles.</p>
+        <h3 class="font-600 text-onyx text-sm mb-1" data-i18n="step1-h">Elige tu destino</h3>
+        <p class="text-onyx/50 text-xs leading-relaxed" data-i18n="step1-p">Selecciona desde el mapa o el listado de rutas disponibles.</p>
       </div>
       <div class="sr flex flex-col items-center text-center" style="transition-delay:.1s">
         <div class="w-16 h-16 rounded-2xl bg-amber/10 flex items-center justify-center mb-3 border border-amber/20">
           <svg class="w-7 h-7 text-amber" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
         </div>
         <div class="step-dot done mb-3">2</div>
-        <h3 class="font-600 text-onyx text-sm mb-1">Selecciona tu unidad</h3>
-        <p class="text-onyx/50 text-xs leading-relaxed">Sedán, SUV, Van Ejecutiva o Shuttle según el grupo.</p>
+        <h3 class="font-600 text-onyx text-sm mb-1" data-i18n="step2-h">Selecciona tu unidad</h3>
+        <p class="text-onyx/50 text-xs leading-relaxed" data-i18n="step2-p">Sedán, SUV, Van Ejecutiva o Shuttle según el grupo.</p>
       </div>
       <div class="sr flex flex-col items-center text-center" style="transition-delay:.2s">
         <div class="w-16 h-16 rounded-2xl bg-amber/10 flex items-center justify-center mb-3 border border-amber/20">
           <svg class="w-7 h-7 text-amber" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         </div>
         <div class="step-dot mb-3">3</div>
-        <h3 class="font-600 text-onyx text-sm mb-1">Llena tus datos</h3>
-        <p class="text-onyx/50 text-xs leading-relaxed">Fecha, hora, número de vuelo y datos de contacto.</p>
+        <h3 class="font-600 text-onyx text-sm mb-1" data-i18n="step3-h">Llena tus datos</h3>
+        <p class="text-onyx/50 text-xs leading-relaxed" data-i18n="step3-p">Fecha, hora, número de vuelo y datos de contacto.</p>
       </div>
       <div class="sr flex flex-col items-center text-center" style="transition-delay:.3s">
         <div class="w-16 h-16 rounded-2xl bg-amber/10 flex items-center justify-center mb-3 border border-amber/20">
           <svg class="w-7 h-7 text-amber" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
         <div class="step-dot mb-3">4</div>
-        <h3 class="font-600 text-onyx text-sm mb-1">Confirmación inmediata</h3>
-        <p class="text-onyx/50 text-xs leading-relaxed">Recibe confirmación por WhatsApp al instante.</p>
+        <h3 class="font-600 text-onyx text-sm mb-1" data-i18n="step4-h">Confirmación inmediata</h3>
+        <p class="text-onyx/50 text-xs leading-relaxed" data-i18n="step4-p">Recibe confirmación por WhatsApp al instante.</p>
       </div>
     </div>
   </div>
@@ -354,7 +359,7 @@
             </div>
             <div>
               <label class="block text-xs font-700 text-onyx/60 uppercase tracking-wide mb-2" data-i18n="form-flight">No. vuelo</label>
-              <input id="vuelo" type="text" placeholder="AM 456"
+              <input id="vuelo" type="text" placeholder="AM 456" data-i18n="placeholder-flight"
                 class="w-full rounded-xl border border-amber/25 bg-cream px-4 py-3 text-sm font-500 placeholder-onyx/30"/>
             </div>
           </div>
@@ -363,12 +368,12 @@
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-xs font-700 text-onyx/60 uppercase tracking-wide mb-2" data-i18n="form-name">Nombre</label>
-              <input id="nombre" type="text" placeholder="Tu nombre"
+              <input id="nombre" type="text" placeholder="Tu nombre" data-i18n="placeholder-name"
                 class="w-full rounded-xl border border-amber/25 bg-cream px-4 py-3 text-sm font-500 placeholder-onyx/30"/>
             </div>
             <div>
               <label class="block text-xs font-700 text-onyx/60 uppercase tracking-wide mb-2" data-i18n="form-phone">WhatsApp</label>
-              <input id="tel" type="tel" placeholder="+52 33…"
+              <input id="tel" type="tel" placeholder="+52 33…" data-i18n="placeholder-phone"
                 class="w-full rounded-xl border border-amber/25 bg-cream px-4 py-3 text-sm font-500 placeholder-onyx/30"/>
             </div>
           </div>
@@ -377,7 +382,7 @@
           <button id="btn-reservar"
             class="w-full py-4 bg-amber hover:bg-amber-dark text-white font-700 rounded-2xl transition-all text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-            Solicitar por WhatsApp
+            <span data-i18n="btn-send">Solicitar por WhatsApp</span>
           </button>
           <p class="text-center text-onyx/40 text-xs -mt-2" data-i18n="form-footer">Confirmación inmediata · Pago en destino</p>
         </div>
@@ -411,7 +416,7 @@
       <table class="w-full text-sm">
         <thead>
           <tr class="bg-amber/8 border-b border-amber/15">
-            <th class="text-left px-5 py-4 font-700 text-onyx/70 text-xs uppercase tracking-wide">Destino</th>
+            <th class="text-left px-5 py-4 font-700 text-onyx/70 text-xs uppercase tracking-wide" data-i18n="table-dest">Destino</th>
             <th class="px-4 py-4 font-700 text-onyx/70 text-xs text-center">🚗 Sedán<br/><span class="font-400 normal-case text-[10px]">1–4 pax</span></th>
             <th class="px-4 py-4 font-700 text-onyx/70 text-xs text-center">🚙 SUV<br/><span class="font-400 normal-case text-[10px]">1–6 pax</span></th>
             <th class="px-4 py-4 font-700 text-onyx/70 text-xs text-center">🚐 Van<br/><span class="font-400 normal-case text-[10px]">1–10 pax</span></th>
@@ -427,7 +432,7 @@
       <div class="sr bg-white rounded-3xl p-5 border border-amber/15 shadow-sm hover:border-amber/40 hover:shadow-md transition-all">
         <div class="text-4xl mb-3">🚗</div>
         <h3 class="font-syne font-800 text-onyx text-lg mb-1">Sedán</h3>
-        <p class="text-onyx/50 text-xs mb-3">Perfecto para viajes individuales o en pareja. A/C, Wi-Fi, agua.</p>
+        <p class="text-onyx/50 text-xs mb-3" data-i18n="v1-p">Perfecto para viajes individuales o en pareja. A/C, Wi-Fi, agua.</p>
         <div class="flex items-center justify-between">
           <span class="text-onyx/40 text-xs">Hasta 4 pasajeros</span>
           <span class="price-badge">Desde $600</span>
@@ -436,7 +441,7 @@
       <div class="sr bg-white rounded-3xl p-5 border border-amber/15 shadow-sm hover:border-amber/40 hover:shadow-md transition-all" style="transition-delay:.1s">
         <div class="text-4xl mb-3">🚙</div>
         <h3 class="font-syne font-800 text-onyx text-lg mb-1">SUV</h3>
-        <p class="text-onyx/50 text-xs mb-3">Ideal para familias. Amplio espacio para equipaje y comodidad extra.</p>
+        <p class="text-onyx/50 text-xs mb-3" data-i18n="v2-p">Ideal para familias. Amplio espacio para equipaje y comodidad extra.</p>
         <div class="flex items-center justify-between">
           <span class="text-onyx/40 text-xs">Hasta 6 pasajeros</span>
           <span class="price-badge">Desde $800</span>
@@ -445,7 +450,7 @@
       <div class="sr bg-white rounded-3xl p-5 border border-amber/15 shadow-sm hover:border-amber/40 hover:shadow-md transition-all" style="transition-delay:.2s">
         <div class="text-4xl mb-3">🚐</div>
         <h3 class="font-syne font-800 text-onyx text-lg mb-1">Van Ejecutiva</h3>
-        <p class="text-onyx/50 text-xs mb-3">Para grupos medianos o viajes corporativos con comodidad premium.</p>
+        <p class="text-onyx/50 text-xs mb-3" data-i18n="v3-p">Para grupos medianos o viajes corporativos con comodidad premium.</p>
         <div class="flex items-center justify-between">
           <span class="text-onyx/40 text-xs">Hasta 10 pasajeros</span>
           <span class="price-badge">Desde $1,100</span>
@@ -454,7 +459,7 @@
       <div class="sr bg-white rounded-3xl p-5 border border-amber/15 shadow-sm hover:border-amber/40 hover:shadow-md transition-all" style="transition-delay:.3s">
         <div class="text-4xl mb-3">🚌</div>
         <h3 class="font-syne font-800 text-onyx text-lg mb-1">Shuttle Grupal</h3>
-        <p class="text-onyx/50 text-xs mb-3">La opción más económica por persona para grupos grandes.</p>
+        <p class="text-onyx/50 text-xs mb-3" data-i18n="v4-p">La opción más económica por persona para grupos grandes.</p>
         <div class="flex items-center justify-between">
           <span class="text-onyx/40 text-xs">Hasta 14 pasajeros</span>
           <span class="price-badge">Desde $1,500</span>
@@ -499,7 +504,7 @@
             <div class="text-white/60 text-[10px] font-700 uppercase tracking-widest leading-none">Conecta Nayarit</div>
           </div>
         </div>
-        <p class="text-white/60 text-sm max-w-xs">Tu transporte oficial del aeropuerto de Tepic a la Riviera Nayarit. Servicio seguro, puntual y confiable.</p>
+        <p class="text-white/60 text-sm max-w-xs" data-i18n="footer-tag">Tu transporte oficial del aeropuerto de Tepic a la Riviera Nayarit. Servicio seguro, puntual y confiable.</p>
       </div>
       <div class="text-center">
         <p class="text-white/50 text-xs">Demo creado por</p>
@@ -918,7 +923,7 @@ document.getElementById('btn-en').addEventListener('click', () => applyLang('en'
     document.body.style.overflow = '';
     setTimeout(() => { lbImg.src = ''; }, 350);
   }
-  document.querySelectorAll('img:not(#lb img)').forEach(img => {
+  document.querySelectorAll('img:not(#lb img):not(#hero-bg)').forEach(img => {
     img.style.cursor = 'zoom-in';
     img.addEventListener('click', () => open(img.src, img.alt));
   });
